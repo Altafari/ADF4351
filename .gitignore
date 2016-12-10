@@ -1,0 +1,5 @@
+/bin/
+
+# Java .class files
+
+*.class
