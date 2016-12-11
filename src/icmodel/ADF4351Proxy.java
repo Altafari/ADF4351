@@ -1,15 +1,16 @@
 package icmodel;
 
 public class ADF4351Proxy {
-    
-    private boolean invalidRegs[];
-
+    // ADF4351 internal state variables
+    // Register 0
     private int integerVal;
     private int fractionalVal;
+    // Register 1
     private int modulusVal;
     private int phaseVal;
     private PrescallerMode prescallerMode;
     private boolean phaseAdjust;
+    // Register 2
     private boolean counterReset;
     private boolean cpThreeState;
     private boolean powerDown;
@@ -20,6 +21,28 @@ public class ADF4351Proxy {
     private boolean doubleBuffer;
     private boolean refDivBy2;
     private boolean refDoubler;
+    private MuxOutMode muxOut;
+    private NoiseMode noiseMode;
+    // Register 3
+    private int clockDivider;
+    private ClockDividerMode clockDividerMode;
+    private boolean cycleSlipReduction;
+    private boolean chargeCancel;
+    private AbpTime abpTime;
+    private boolean bandSelectClockMode;
+    // Register 4
+    private OutputPower outputPower;
+    private boolean rfOutEnable;
+    private OutputPower auxPower;
+    private boolean auxEnable;
+    private AuxMode auxMode;
+    private boolean muteTillLd;
+    private boolean vcoPowerDown;
+    private int bandSelectDivider;
+    private RfDivider rfDivider;
+    private FeedbackMode feedbackMode;
+    // Register 5
+    private LockDetectPin lockDetectPin;
     
     public final static int MIN_FRACTIONAL = 0;
     public final static int MAX_FRACTIONAL = 4095;
@@ -34,16 +57,29 @@ public class ADF4351Proxy {
     public final static int MAX_PHASE = 4095;
     public final static int DEFAULT_PHASE = 1;
     
-    public enum PrescallerMode { MODE4DIV5, MODE8DIV9 };
-    public enum PdPolarity { NEGATIVE, POSITIVE };
-    public enum LdpTime { MODE10NS, MODE6NS };
-    public enum LdfMode { FRAC_N, INT_N };
+    public enum PrescallerMode { MODE_4DIV5, MODE_8DIV9 }
+    public enum PdPolarity { NEGATIVE, POSITIVE }
+    public enum LdpTime { MODE_10NS, MODE_6NS }
+    public enum LdfMode { FRAC_N, INT_N }
     
     public final static int MIN_CP_CURRENT = 0;
     public final static int MAX_CP_CURRENT = 15;
     
-    public enum MuxOutMode { THREE_STATE, DVDD, DGND, R_COUNTER, N_DIVIDER, ANALOG_LOCK, DIGITAL_LOCK };
-    public enum NoiseMode {LOW_NOISE, LOW_SPUR};    
+    public enum MuxOutMode { THREE_STATE, DVDD, DGND, R_COUNTER, N_DIVIDER, ANALOG_LOCK, DIGITAL_LOCK }
+    public enum NoiseMode { LOW_NOISE, LOW_SPUR }
+    
+    public final static int MIN_CLOCK_DIVIDER = 0;
+    public final static int MAX_CLOCK_DIVIDER = 4095;
+    
+    public enum ClockDividerMode { CLOCK_DIVIDER_OFF, FAST_LOCK_ENABLE, RESYNC_ENABLE }
+    public enum AbpTime { MODE_6NS, MODE_3NS }
+    
+    public enum OutputPower { MODE_MINUS_4DBM, MODE_MINUS_1DBM, MODE_PLUS_2DBM, MODE_PLUS_5DBM }
+    public enum AuxMode { DIVIDED_OUTPUT, FUNDAMENTAL }
+    public enum RfDivider { DIV_1, DIV_2, DIV_4, DIV_8, DIV_16, DIV32, DIV64 }
+    public enum FeedbackMode { DIVIDED, FUNDAMENTAL }
+    
+    public enum LockDetectPin { LOW, DIGITAL_LD, HIGH }
     
     public ADF4351Proxy() {
         phaseVal = DEFAULT_PHASE;
@@ -124,5 +160,36 @@ public class ADF4351Proxy {
     
     public void setReferenceDivBy2(boolean val) {
         refDivBy2 = val;
+    }
+    
+    public void setReferenceDoubler(boolean val) {
+        refDoubler = val;
+    }
+    
+    public void setMuxOutMode(MuxOutMode val) {
+        muxOut = val;
+    }
+    
+    public void setNoiseMode(NoiseMode val) {
+        noiseMode = val;
+    }
+    
+    public void setClockDivider(int val) {
+        if (val < MIN_CLOCK_DIVIDER || val > MAX_CLOCK_DIVIDER) {
+            throw new IllegalArgumentException("Clock divider out of range");
+        }
+        clockDivider = val;
+    }
+    
+    public void setClockDividerMode(ClockDividerMode val) {
+        clockDividerMode = val;
+    }
+    
+    public void setAbpTime(AbpTime val) {
+        abpTime = val;
+    }
+    
+    public void setBandSelectClockMode(boolean val) {
+        bandSelectClockMode = val;
     }
 }
