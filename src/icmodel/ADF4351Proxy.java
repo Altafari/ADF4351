@@ -59,6 +59,30 @@ public class ADF4351Proxy {
         }
     }
     
+    private static class BitBuffer {
+        private int buff;
+        
+        public BitBuffer() {
+            // Empty
+        }
+        
+        public void init(int val) {
+            buff = val;
+        }
+        
+        public void putArgument(int arg, BitArray bar) {
+            buff = (buff & ~bar.bitMask) | (arg << bar.offset & bar.bitMask);
+        }
+        
+        public void putBit(boolean arg, int pos) {
+            buff = (buff & ~(1 << pos)) | ((arg? 1 : 0) << pos);
+        }
+        
+        public int getInt() {
+            return buff;
+        }
+    }
+    
     // Register 0
     public final static int MIN_FRACTIONAL = 0;
     public final static int MAX_FRACTIONAL = 4095;
@@ -487,47 +511,59 @@ public class ADF4351Proxy {
     }
 
     public int getRegister(int reg) {
-        int bits[] = new int[1];
+        BitBuffer buff = new BitBuffer();
         switch (reg) {
         case 0:
-            bits[0] = 0;
-            putArgument(bits, integerVal, INTEGER_VAL_BITS);
-            putArgument(bits, fractionalVal, FRACTIONAL_VAL_BITS);
-            return bits[0];
+            buff.init(0);
+            buff.putArgument(integerVal, INTEGER_VAL_BITS);
+            buff.putArgument(fractionalVal, FRACTIONAL_VAL_BITS);
+            break;
         case 1: 
-            bits[0] = 1;
-            putArgument(bits, this.modulusVal, MODULUS_VAL_BITS);
-            putArgument(bits, this.phaseVal, PHASE_VAL_BITS);
-            putBit(bits, this.prescallerMode == PrescallerMode.MODE_8DIV9, 27);
-            putBit(bits, this.phaseAdjust, 28);
-            return bits[0];
+            buff.init(1);
+            buff.putArgument(this.modulusVal, MODULUS_VAL_BITS);
+            buff.putArgument(this.phaseVal, PHASE_VAL_BITS);
+            buff.putBit(this.prescallerMode == PrescallerMode.MODE_8DIV9, 27);
+            buff.putBit(this.phaseAdjust, 28);
+            break;
         case 2:
-            bits[0] = 2;
-            putBit(bits, this.counterReset, 3);
-            putBit(bits, this.cpThreeState, 4);
-            putBit(bits, this.powerDown, 5);
-            putBit(bits, this.pdPolarity == PdPolarity.POSITIVE, 6);
-            putBit(bits, this.ldpTime == LdpTime.MODE_6NS, 7);
-            putBit(bits, this.ldfMode == LdfMode.INT_N, 8);
-            putArgument(bits, this.cpCurrent, CP_CURRENT_BITS);
-            putBit(bits, this)
+            buff.init(2);
+            buff.putBit(this.counterReset, 3);
+            buff.putBit(this.cpThreeState, 4);
+            buff.putBit(this.powerDown, 5);
+            buff.putBit(this.pdPolarity == PdPolarity.POSITIVE, 6);
+            buff.putBit(this.ldpTime == LdpTime.MODE_6NS, 7);
+            buff.putBit(this.ldfMode == LdfMode.INT_N, 8);
+            buff.putArgument(this.cpCurrent, CP_CURRENT_BITS);
+            buff.putBit(this.doubleBuffer, 13);
+            buff.putArgument(this.rCounter, R_COUNTER_BITS);
+            buff.putBit(this.refDivBy2, 24);
+            buff.putBit(this.refDoubler, 24);
+            buff.putArgument(this.muxOut, MUX_OUT_BITS);
+            buff.putArgument(this.noiseMode, NOISE_MODE_BITS);
         case 3:
+            buff.init(3);
+            buff.putArgument(this.clockDivider, CLOCK_DIVIDER_BITS);
+            buff.putArgument(this.clockDividerMode, CLOCK_DIV_MODE_BITS);
+            buff.putBit(this.cycleSlipReduction, 18);
+            buff.putBit(this.chargeCancel, 21);
+            buff.putBit(this.abpTime == AbpTime.MODE_3NS, 22);
+            buff.putBit(this.bandSelectClockMode == BandSelect.HIGH, 23);
             break;
         case 4:
+            buff.init(4);
+            buff.putArgument(this.outputPower.ordinal(), OUTPUT_POWER_BITS);
+            buff.putBit(this.rfOutEnable, 5);
+            buff.putArgument(this.auxPower.ordinal(), AUX_POWER_BITS);
+            // TODO:
             break;
         case 5:
             break;
         default:
             throw new IllegalArgumentException("Unknown register number: " + reg);
         }
+        return buff.getInt();
     }
     
-    private void putArgument(int buff[], int arg, BitArray bar) {
-        buff[0] = (buff[0] & ~bar.bitMask) | (arg << bar.offset & bar.bitMask);
-    }
-    
-    private void putBit(int buff[], boolean arg, int pos) {
-        buff[0] = (buff[0] & ~(1 << pos)) | ((arg? 1 : 0) << pos);
-    }
+
     // TODO: create binary regs representation
 }
