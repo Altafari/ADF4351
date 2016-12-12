@@ -19,6 +19,7 @@ public class ADF4351Proxy {
     private LdfMode ldfMode;
     private int cpCurrent;
     private boolean doubleBuffer;
+    private int rCounter;
     private boolean refDivBy2;
     private boolean refDoubler;
     private MuxOutMode muxOut;
@@ -44,16 +45,41 @@ public class ADF4351Proxy {
     // Register 5
     private LockDetectPin lockDetectPin;
 
+    private static class BitArray {
+        public final int bitMask;
+        public final int offset;
+        
+        public BitArray(int nBits, int offset) {
+            this.offset = offset;
+            int temp = 0;
+            for (int i = 0; i < nBits; i++) {
+                temp |= 1 << (i + offset);
+            }
+            bitMask = temp;
+        }
+    }
+    
     // Register 0
     public final static int MIN_FRACTIONAL = 0;
     public final static int MAX_FRACTIONAL = 4095;
+    
+    private final static BitArray FRACTIONAL_VAL_BITS = new BitArray(12, 3);
+    
     public final static int MIN_INTEGER = 23;
     public final static int MAX_INTEGER = 65535;
+    
+    private final static BitArray INTEGER_VAL_BITS = new BitArray(16, 15);
     // Register 1
     public final static int MIN_MODULUS = 2;
     public final static int MAX_MODULUS = 4095;
+    
+    private final static BitArray MODULUS_VAL_BITS = new BitArray(12, 3);
+    
     public final static int MIN_PHASE = 0;
     public final static int MAX_PHASE = 4095;
+    
+    private final static BitArray PHASE_VAL_BITS = new BitArray(12, 15);
+    
     public final static int DEFAULT_PHASE = 1;
 
     public enum PrescallerMode {
@@ -75,6 +101,13 @@ public class ADF4351Proxy {
 
     public final static int MIN_CP_CURRENT = 0;
     public final static int MAX_CP_CURRENT = 15;
+    
+    private final static BitArray CP_CURRENT_BITS = new BitArray(4, 9);
+    
+    public final static int MIN_R_COUNTER = 0;
+    public final static int MAX_R_COUNTER = 4095;//TODO
+    
+    private final static BitArray R_COUNTER_BITS = new BitArray(10, 14);
 
     public enum MuxOutMode {
         THREE_STATE, DVDD, DGND, R_COUNTER, N_DIVIDER, ANALOG_LOCK, DIGITAL_LOCK
@@ -88,6 +121,8 @@ public class ADF4351Proxy {
     public final static int MIN_CLOCK_DIVIDER = 0;
     public final static int MAX_CLOCK_DIVIDER = 4095;
 
+    private final static BitArray CLOCK_DIVIDER_BITS = new BitArray(12, 3);
+    
     public enum ClockDividerMode {
         CLOCK_DIVIDER_OFF, FAST_LOCK_ENABLE, RESYNC_ENABLE
     }
@@ -104,6 +139,9 @@ public class ADF4351Proxy {
     public enum PowerMode {
         MODE_MINUS_4DBM, MODE_MINUS_1DBM, MODE_PLUS_2DBM, MODE_PLUS_5DBM
     }
+    
+    private final static BitArray OUTPUT_POWER_BITS = new BitArray(2, 3);
+    private final static BitArray AUX_POWER_BITS = new BitArray(2, 6);
 
     public enum AuxMode {
         DIVIDED_OUTPUT, FUNDAMENTAL
@@ -112,9 +150,13 @@ public class ADF4351Proxy {
     public final static int MIN_BAND_SELECT_DIVIDER = 1;
     public final static int MAX_BAND_SELECT_DIVIDER = 255;
 
+    private final static BitArray BAND_SELECT_BITS = new BitArray(8, 12);
+    
     public enum RfDivider {
         DIV_1, DIV_2, DIV_4, DIV_8, DIV_16, DIV32, DIV64
     }
+    
+    private final static BitArray RF_DIVIDER_BITS = new BitArray(3, 20);
 
     public enum FeedbackMode {
         DIVIDED, FUNDAMENTAL
@@ -126,7 +168,7 @@ public class ADF4351Proxy {
     }
 
     public ADF4351Proxy() {
-        phaseVal = DEFAULT_PHASE; // TODO: define meaningful defaults
+        // Empty
     }
 
     // Register 0
@@ -258,7 +300,14 @@ public class ADF4351Proxy {
     public boolean getDoubleBuffer() {
         return doubleBuffer;
     }
-    // R - counter??? TODO: investigate issue
+    
+    public void setRcounter(int val) {
+        rCounter = val;
+    }
+    
+    public int getRcounter() {
+        return rCounter;
+    }
 
     public void setReferenceDivBy2(boolean val) {
         refDivBy2 = val;
@@ -437,5 +486,48 @@ public class ADF4351Proxy {
         return lockDetectPin;
     }
 
+    public int getRegister(int reg) {
+        int bits[] = new int[1];
+        switch (reg) {
+        case 0:
+            bits[0] = 0;
+            putArgument(bits, integerVal, INTEGER_VAL_BITS);
+            putArgument(bits, fractionalVal, FRACTIONAL_VAL_BITS);
+            return bits[0];
+        case 1: 
+            bits[0] = 1;
+            putArgument(bits, this.modulusVal, MODULUS_VAL_BITS);
+            putArgument(bits, this.phaseVal, PHASE_VAL_BITS);
+            putBit(bits, this.prescallerMode == PrescallerMode.MODE_8DIV9, 27);
+            putBit(bits, this.phaseAdjust, 28);
+            return bits[0];
+        case 2:
+            bits[0] = 2;
+            putBit(bits, this.counterReset, 3);
+            putBit(bits, this.cpThreeState, 4);
+            putBit(bits, this.powerDown, 5);
+            putBit(bits, this.pdPolarity == PdPolarity.POSITIVE, 6);
+            putBit(bits, this.ldpTime == LdpTime.MODE_6NS, 7);
+            putBit(bits, this.ldfMode == LdfMode.INT_N, 8);
+            putArgument(bits, this.cpCurrent, CP_CURRENT_BITS);
+            putBit(bits, this)
+        case 3:
+            break;
+        case 4:
+            break;
+        case 5:
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown register number: " + reg);
+        }
+    }
+    
+    private void putArgument(int buff[], int arg, BitArray bar) {
+        buff[0] = (buff[0] & ~bar.bitMask) | (arg << bar.offset & bar.bitMask);
+    }
+    
+    private void putBit(int buff[], boolean arg, int pos) {
+        buff[0] = (buff[0] & ~(1 << pos)) | ((arg? 1 : 0) << pos);
+    }
     // TODO: create binary regs representation
 }
