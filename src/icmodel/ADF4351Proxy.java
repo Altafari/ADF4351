@@ -129,7 +129,7 @@ public class ADF4351Proxy {
     private final static BitArray CP_CURRENT_BITS = new BitArray(4, 9);
     
     public final static int MIN_R_COUNTER = 0;
-    public final static int MAX_R_COUNTER = 4095;//TODO
+    public final static int MAX_R_COUNTER = 4095;
     
     private final static BitArray R_COUNTER_BITS = new BitArray(10, 14);
 
@@ -137,9 +137,13 @@ public class ADF4351Proxy {
         THREE_STATE, DVDD, DGND, R_COUNTER, N_DIVIDER, ANALOG_LOCK, DIGITAL_LOCK
     }
 
+    private final static BitArray MUX_OUT_BITS = new BitArray(3, 26);
+    
     public enum NoiseMode {
-        LOW_NOISE, LOW_SPUR
+        LOW_NOISE, RESERVED1, RESERVED2, LOW_SPUR;
     }
+    
+    private final static BitArray NOISE_MODE_BITS = new BitArray(2, 29);
 
     // Register 3
     public final static int MIN_CLOCK_DIVIDER = 0;
@@ -187,10 +191,16 @@ public class ADF4351Proxy {
     }
 
     // Register 5
+    
+    private final static int reserved = 3;
+    private final static BitArray RESERVED_11 = new BitArray(2, 19); 
+    
     public enum LockDetectPin {
-        LOW, DIGITAL_LD, HIGH
+        LOW, DIGITAL_LD, LOW2, HIGH
     }
 
+    private final static BitArray LOCK_DETECT_BITS = new BitArray(2, 22);
+    
     public ADF4351Proxy() {
         // Empty
     }
@@ -326,6 +336,9 @@ public class ADF4351Proxy {
     }
     
     public void setRcounter(int val) {
+        if (val < MIN_R_COUNTER || val > MAX_R_COUNTER) {
+            throw new IllegalArgumentException("R counter value out of range");
+        }
         rCounter = val;
     }
     
@@ -538,12 +551,12 @@ public class ADF4351Proxy {
             buff.putArgument(this.rCounter, R_COUNTER_BITS);
             buff.putBit(this.refDivBy2, 24);
             buff.putBit(this.refDoubler, 24);
-            buff.putArgument(this.muxOut, MUX_OUT_BITS);
-            buff.putArgument(this.noiseMode, NOISE_MODE_BITS);
+            buff.putArgument(this.muxOut.ordinal(), MUX_OUT_BITS);
+            buff.putArgument(this.noiseMode.ordinal(), NOISE_MODE_BITS);
         case 3:
             buff.init(3);
             buff.putArgument(this.clockDivider, CLOCK_DIVIDER_BITS);
-            buff.putArgument(this.clockDividerMode, CLOCK_DIV_MODE_BITS);
+            buff.putArgument(this.clockDividerMode.ordinal(), CLOCK_DIVIDER_BITS);
             buff.putBit(this.cycleSlipReduction, 18);
             buff.putBit(this.chargeCancel, 21);
             buff.putBit(this.abpTime == AbpTime.MODE_3NS, 22);
@@ -554,16 +567,22 @@ public class ADF4351Proxy {
             buff.putArgument(this.outputPower.ordinal(), OUTPUT_POWER_BITS);
             buff.putBit(this.rfOutEnable, 5);
             buff.putArgument(this.auxPower.ordinal(), AUX_POWER_BITS);
-            // TODO:
+            buff.putBit(this.auxEnable, 8);
+            buff.putBit(this.auxMode == AuxMode.FUNDAMENTAL, 9);
+            buff.putBit(this.muteTillLd, 10);
+            buff.putBit(this.vcoPowerDown, 11);
+            buff.putArgument(this.bandSelectDivider, BAND_SELECT_BITS);
+            buff.putArgument(this.rfDivider.ordinal(), RF_DIVIDER_BITS);
+            buff.putBit(this.feedbackMode == FeedbackMode.FUNDAMENTAL, 23);
             break;
         case 5:
+            buff.init(5);
+            buff.putArgument(this.lockDetectPin.ordinal(), LOCK_DETECT_BITS);
+            buff.putArgument(reserved, RESERVED_11);
             break;
         default:
             throw new IllegalArgumentException("Unknown register number: " + reg);
         }
         return buff.getInt();
     }
-    
-
-    // TODO: create binary regs representation
 }
