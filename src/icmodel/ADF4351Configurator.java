@@ -1,6 +1,7 @@
 package icmodel;
 
 import icmodel.ADF4351Proxy.*;
+import utils.Observable;
 
 public class ADF4351Configurator {
     
@@ -12,14 +13,15 @@ public class ADF4351Configurator {
         INTEGER, FRACTIONAL
     }
     
-    private ADF4351Proxy device;
-    private ReferenceMode refMode;  // Replace with observable?
-    private SynthMode synthMode;
+    private final ADF4351Proxy device;  // Safe wrapper (reduced functionality interface)?
+    public final Observable<Double> referenceFrequency;
+    public final Observable<ReferenceMode> referenceMode;
+    public final Observable<SynthMode> synthMode;
 
     public void setReferenceMode(ReferenceMode refMode, int rCounter) {
         
     }
-    
+    // Convert to anonymous class and connect to observable
     public void setSynthMode(SynthMode mode) {
         switch (mode) {
         case INTEGER:
@@ -56,6 +58,9 @@ public class ADF4351Configurator {
     
     public ADF4351Configurator(ADF4351Proxy proxy) {
         device = proxy;
+        referenceFrequency = new Observable<Double>(100.0E6);
+        referenceMode = new Observable<ReferenceMode>(ReferenceMode.NORM);
+        synthMode = new Observable<SynthMode>(SynthMode.INTEGER);
         setDefaultValues();
         setReferenceMode(ReferenceMode.NORM);
         setSynthMode(SynthMode.INTEGER);
@@ -75,7 +80,7 @@ public class ADF4351Configurator {
         device.setClockDividerMode(ClockDividerMode.CLOCK_DIVIDER_OFF);
         device.setCycleSlipReduction(false);
         device.setDoubleBuffer(false);
-        device.setMuxOutMode(MuxOutMode.DIGITAL_LOCK);
+        device.setMuxOutMode(MuxOutMode.ANALOG_LOCK);
         device.setOutputPower(PowerMode.MODE_PLUS_2DBM);
         device.setRfOutEnable(true);
         device.setAuxPower(PowerMode.MODE_PLUS_2DBM);
@@ -83,6 +88,7 @@ public class ADF4351Configurator {
         device.setAuxMode(AuxMode.DIVIDED_OUTPUT);
         device.setMuteTillLd(false);
         device.setRfDivider(RfDivider.DIV64);
+        device.setLdPinMode(LockDetectPin.DIGITAL_LD);
     }
 
 }
