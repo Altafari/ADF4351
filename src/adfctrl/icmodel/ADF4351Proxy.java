@@ -1,4 +1,4 @@
-package icmodel;
+package adfctrl.icmodel;
 
 public class ADF4351Proxy {
     // ADF4351 internal state variables

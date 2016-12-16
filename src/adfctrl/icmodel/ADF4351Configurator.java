@@ -1,7 +1,7 @@
-package icmodel;
+package adfctrl.icmodel;
 
-import icmodel.ADF4351Proxy.*;
-import utils.Observable;
+import adfctrl.icmodel.ADF4351Proxy.*;
+import adfctrl.utils.Observable;
 
 public class ADF4351Configurator {
     
@@ -12,15 +12,16 @@ public class ADF4351Configurator {
     public enum SynthMode {
         INTEGER, FRACTIONAL
     }
-    
-    private final ADF4351Proxy device;  // Safe wrapper (reduced functionality interface)?
+
     public final Observable<Double> referenceFrequency;
     public final Observable<ReferenceMode> referenceMode;
     public final Observable<SynthMode> synthMode;
+    public final Observable<Integer> intValue;
+    public final Observable<Integer> fracValue;
+    public final Observable<Integer> modValue;
 
-    public void setReferenceMode(ReferenceMode refMode, int rCounter) {
-        
-    }
+    private final ADF4351Proxy device;  // Safe wrapper (reduced functionality interface)?
+    
     // Convert to anonymous class and connect to observable
     public void setSynthMode(SynthMode mode) {
         switch (mode) {
@@ -59,8 +60,21 @@ public class ADF4351Configurator {
     public ADF4351Configurator(ADF4351Proxy proxy) {
         device = proxy;
         referenceFrequency = new Observable<Double>(100.0E6);
+        
         referenceMode = new Observable<ReferenceMode>(ReferenceMode.NORM);
+        referenceMode.addObserver((s) -> this.setReferenceMode(s));
+        
         synthMode = new Observable<SynthMode>(SynthMode.INTEGER);
+        synthMode.addObserver((s) -> this.setSynthMode(s));
+        
+        intValue = new Observable<Integer>();
+        intValue.addObserver((s) -> this.device.setInteger(s));
+        
+        fracValue = new Observable<Integer>();
+        fracValue.addObserver((s) -> this.device.setFractional(s));
+        
+        modValue = new Observable<Integer>();
+        modValue.addObserver((s) -> this.device.setModulus(s));
         setDefaultValues();
         setReferenceMode(ReferenceMode.NORM);
         setSynthMode(SynthMode.INTEGER);
@@ -90,5 +104,4 @@ public class ADF4351Configurator {
         device.setRfDivider(RfDivider.DIV64);
         device.setLdPinMode(LockDetectPin.DIGITAL_LD);
     }
-
 }

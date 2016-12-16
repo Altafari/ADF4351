@@ -1,6 +1,6 @@
-package utils;
+package adfctrl.utils;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Observable<T> {
@@ -9,12 +9,12 @@ public class Observable<T> {
     private final Set<IObserver<T>> observers;    
     
     public Observable() {
-        observers = new HashSet<IObserver<T>>();
+        observers = new LinkedHashSet<IObserver<T>>();
         value = null;
     }
     
     public Observable(T val) {
-        observers = new HashSet<IObserver<T>>();
+        observers = new LinkedHashSet<IObserver<T>>();
         value = val;
     }
     
