@@ -36,7 +36,9 @@ public class Observable<T> {
     }
     
     public void updateValueAndNotify(T val) {
-        value = val;
+        if (val != null) {
+            value = val;
+        }
         notifyObservers();
     }
     
