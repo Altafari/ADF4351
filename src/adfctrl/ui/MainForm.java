@@ -2,10 +2,10 @@ package adfctrl.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -31,15 +31,23 @@ public class MainForm {
         ADF4351Configurator config = sysMgr.getConfigurator();
         
         LabeledNumericField integerValueField = new LabeledNumericField(
-                "Test", 6, (v) -> v > 0 && v < 100); // TODO: move validator to model         
+                "Integer", 6, (v) -> v > 0 && v < 100); // TODO: move validator to model         
         ctrlPanel.add(integerValueField);
+        
+        LabeledNumericField fractionalValueField = new LabeledNumericField(
+                "Fractional", 6, (v) -> v > 0 && v < 100); // TODO: move validator to model         
+        ctrlPanel.add(fractionalValueField);
         
         
         List<SynthMode> stateList = Arrays.asList(SynthMode.INTEGER, SynthMode.FRACTIONAL);
         List<String> labels = Arrays.asList("Integer", "Fractional");
         LabeledSliderSwitch<SynthMode> synthModeSwitch = new LabeledSliderSwitch<SynthMode>(
-                "Mode", config.synthMode, stateList, labels);
-        ctrlPanel.add(synthModeSwitch);
+                "Synth Mode", config.synthMode, stateList, labels);
+        
+        JPanel switchPanel = new JPanel();
+        switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.PAGE_AXIS));;
+        switchPanel.add(synthModeSwitch);
+        ctrlPanel.add(switchPanel);
         
         Observable<Integer> intVal = SystemManager.getInstance().getConfigurator().intValue; 
         integerValueField.setModel(intVal);
