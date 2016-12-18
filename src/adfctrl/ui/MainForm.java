@@ -2,15 +2,10 @@ package adfctrl.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.util.Arrays;
-import java.util.List;
-
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import adfctrl.icmodel.ADF4351Configurator;
-import adfctrl.icmodel.ADF4351Configurator.SynthMode;
 import adfctrl.system.SystemManager;
 import adfctrl.utils.Observable;
 

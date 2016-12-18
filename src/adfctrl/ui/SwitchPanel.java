@@ -1,8 +1,10 @@
 package adfctrl.ui;
 
+import java.awt.FlowLayout;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import adfctrl.icmodel.ADF4351Configurator;
@@ -16,17 +18,20 @@ import adfctrl.system.SystemManager;
 
 public class SwitchPanel extends JPanel {
     
-    public final LabeledSliderSwitch synthModeSwitch;
-    public final LabeledSliderSwitch feedbackModeSwitch;
-    public final LabeledSliderSwitch noiseModeSwitch;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     
-    public final LabeledSliderSwitch outputPowerSwitch;
-    public final LabeledSliderSwitch outputSwitch;
-    public final LabeledSliderSwitch auxPowerSwitch;
-    public final LabeledSliderSwitch auxSwitch;
-    public final LabeledSliderSwitch auxModeSwitch;
-    
-    public final LabeledSliderSwitch rfDividerSwitch;
+    public final LabeledSliderSwitch<SynthMode> synthModeSwitch;
+    public final LabeledSliderSwitch<FeedbackMode> feedbackModeSwitch;
+    public final LabeledSliderSwitch<NoiseMode> noiseModeSwitch;
+    public final LabeledSliderSwitch<PowerMode> outputPowerSwitch;
+    public final LabeledSliderSwitch<Boolean> outputSwitch;
+    public final LabeledSliderSwitch<PowerMode> auxPowerSwitch;
+    public final LabeledSliderSwitch<Boolean> auxSwitch;
+    public final LabeledSliderSwitch<AuxMode> auxModeSwitch;    //TODO: move these two out
+    public final LabeledSliderSwitch<RfDivider> rfDividerSwitch;
     
     public SwitchPanel() {
         
@@ -66,25 +71,25 @@ public class SwitchPanel extends JPanel {
         List<String> onOffLabels = Arrays.asList("Off", "On");
         
         outputPowerSwitch = new LabeledSliderSwitch<PowerMode>(
-                "Output power level",
+                "OUT power",
                 config.outputPower,
                 powerLevels,
                 powerLevelLabels);
         
         outputSwitch = new LabeledSliderSwitch<Boolean>(
-                "Output control",
+                "OUT enable",
                 config.outputControl,
                 onOffStates,
                 onOffLabels);
         
         auxPowerSwitch = new LabeledSliderSwitch<PowerMode>(
-                "AUX power level",
+                "AUX power",
                 config.auxPower,
                 powerLevels,
                 powerLevelLabels);
 
         auxSwitch = new LabeledSliderSwitch<Boolean>(
-                "AUX control",
+                "AUX enable",
                 config.auxControl,
                 onOffStates,
                 onOffLabels);
@@ -119,11 +124,24 @@ public class SwitchPanel extends JPanel {
                 rfDivModes,
                 rfDivLabels);
         
+        JPanel outputGroup = new ControlsGroup("Output controls");
+        JPanel auxCol = new JPanel();
+        auxCol.setLayout(new BoxLayout(auxCol, BoxLayout.PAGE_AXIS));
+        JPanel outCol = new JPanel();
+        outCol.setLayout(new BoxLayout(outCol, BoxLayout.PAGE_AXIS));
+        outputGroup.setLayout(new FlowLayout(FlowLayout.CENTER));
+        outCol.add(outputPowerSwitch);
+        outCol.add(outputSwitch);
+        auxCol.add(auxPowerSwitch);
+        auxCol.add(auxSwitch);
+        outputGroup.add(auxCol);
+        outputGroup.add(outCol);
+
         this.add(synthModeSwitch);
         this.add(feedbackModeSwitch);
         this.add(noiseModeSwitch);
-        this.add(outputPowerSwitch);
-        this.add(outputSwitch);
+        this.add(outputGroup);
+        this.add(auxModeSwitch);
+        this.add(rfDividerSwitch);
     }
-
 }
