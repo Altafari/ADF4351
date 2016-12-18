@@ -2,6 +2,7 @@ package adfctrl.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -54,10 +55,10 @@ public class LabeledSliderSwitch<T> extends JPanel implements IObserver<T>, Chan
         slider.setLabelTable(nLabels);
         int sliderWidth = slider.getPreferredSize().width;
         slider.setPreferredSize(new Dimension(sliderWidth, maxHeight * states.size()));
-        JPanel slug = new JPanel();
+        JPanel slug = new JPanel(new FlowLayout(FlowLayout.LEFT));
         slug.setBorder(BorderFactory.createEmptyBorder(INNER_PADDING, INNER_PADDING,
                 INNER_PADDING, INNER_PADDING));
-        slug.add(slider);
+        slug.add(slider);              
         this.add(slug);
     }
     

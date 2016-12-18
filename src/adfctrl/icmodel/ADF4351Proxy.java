@@ -181,7 +181,7 @@ public class ADF4351Proxy {
     private final static BitArray BAND_SELECT_BITS = new BitArray(8, 12);
     
     public enum RfDivider {
-        DIV_1, DIV_2, DIV_4, DIV_8, DIV_16, DIV32, DIV64
+        DIV_1, DIV_2, DIV_4, DIV_8, DIV_16, DIV_32, DIV_64
     }
     
     private final static BitArray RF_DIVIDER_BITS = new BitArray(3, 20);

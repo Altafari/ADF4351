@@ -38,9 +38,8 @@ public class MainForm {
         
 
         
-        JPanel switchPanel = new JPanel();
+        JPanel switchPanel = new SwitchPanel();
         switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.PAGE_AXIS));;
-        switchPanel.add(synthModeSwitch);
         ctrlPanel.add(switchPanel);
         
         Observable<Integer> intVal = SystemManager.getInstance().getConfigurator().intValue; 

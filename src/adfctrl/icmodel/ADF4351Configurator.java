@@ -19,6 +19,15 @@ public class ADF4351Configurator {
     public final Observable<Integer> intValue;
     public final Observable<Integer> fracValue;
     public final Observable<Integer> modValue;
+    public final Observable<FeedbackMode> feedbackMode;
+    public final Observable<NoiseMode> noiseMode;
+    public final Observable<PowerMode> outputPower;
+    public final Observable<Boolean> outputControl;
+    public final Observable<PowerMode> auxPower;
+    public final Observable<Boolean> auxControl;
+    public final Observable<AuxMode> auxMode;
+    public final Observable<RfDivider> rfDividerMode;
+    
     
     private ADF4351Proxy device;
     
@@ -40,6 +49,31 @@ public class ADF4351Configurator {
         
         modValue = new Observable<Integer>();
         modValue.addObserver((s) -> {device.setModulus(s); onConfigChanged();});
+        
+        feedbackMode = new Observable<FeedbackMode>();
+        feedbackMode.addObserver((s) -> {device.setFeedbackMode(s); onConfigChanged();});
+        
+        noiseMode = new Observable<NoiseMode>();
+        noiseMode.addObserver((s) -> {device.setNoiseMode(s); onConfigChanged();});
+        
+        outputPower = new Observable<PowerMode>();
+        outputPower.addObserver((s) -> {device.setOutputPower(s); onConfigChanged();});
+        
+        outputControl = new Observable<Boolean>();
+        outputControl.addObserver((s) -> {device.setRfOutEnable(s); onConfigChanged();});
+        
+        auxPower = new Observable<PowerMode>();
+        auxPower.addObserver((s) -> {device.setAuxPower(s); onConfigChanged();});
+        
+        auxControl = new Observable<Boolean>();
+        auxControl.addObserver((s) -> {device.setAuxEnable(s); onConfigChanged();});
+        
+        auxMode = new Observable<AuxMode>();
+        auxMode.addObserver((s) -> {device.setAuxMode(s); onConfigChanged();});
+        
+        rfDividerMode = new Observable<RfDivider>();
+        rfDividerMode.addObserver((s) -> {device.setRfDivider(s); onConfigChanged();});
+        
         setDefaultValues();
         setReferenceMode(ReferenceMode.NORM);
         setSynthMode(SynthMode.INTEGER);
@@ -104,7 +138,7 @@ public class ADF4351Configurator {
         device.setAuxEnable(true);
         device.setAuxMode(AuxMode.DIVIDED_OUTPUT);
         device.setMuteTillLd(false);
-        device.setRfDivider(RfDivider.DIV64);
+        device.setRfDivider(RfDivider.DIV_64);
         device.setLdPinMode(LockDetectPin.DIGITAL_LD);
     }
 }
