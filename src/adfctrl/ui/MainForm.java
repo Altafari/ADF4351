@@ -27,8 +27,6 @@ public class MainForm {
     
     private static void addComponentsToPane(Container pane) {
         JPanel ctrlPanel = new JPanel();
-        SystemManager sysMgr = SystemManager.getInstance();
-        ADF4351Configurator config = sysMgr.getConfigurator();
         
         LabeledNumericField integerValueField = new LabeledNumericField(
                 "Integer", 6, (v) -> v > 0 && v < 100); // TODO: move validator to model         
@@ -38,11 +36,7 @@ public class MainForm {
                 "Fractional", 6, (v) -> v > 0 && v < 100); // TODO: move validator to model         
         ctrlPanel.add(fractionalValueField);
         
-        
-        List<SynthMode> stateList = Arrays.asList(SynthMode.INTEGER, SynthMode.FRACTIONAL);
-        List<String> labels = Arrays.asList("Integer", "Fractional");
-        LabeledSliderSwitch<SynthMode> synthModeSwitch = new LabeledSliderSwitch<SynthMode>(
-                "Synth Mode", config.synthMode, stateList, labels);
+
         
         JPanel switchPanel = new JPanel();
         switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.PAGE_AXIS));;

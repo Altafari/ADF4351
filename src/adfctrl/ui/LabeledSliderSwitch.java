@@ -16,7 +16,7 @@ import javax.swing.event.ChangeListener;
 import adfctrl.utils.IObserver;
 import adfctrl.utils.Observable;
 
-public class LabeledSliderSwitch<T extends Enum<?>> extends JPanel implements IObserver<T>, ChangeListener{
+public class LabeledSliderSwitch<T> extends JPanel implements IObserver<T>, ChangeListener{
 
     /**
      * 

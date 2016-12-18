@@ -57,7 +57,7 @@ public class ADF4351Configurator {
             device.setLdpTime(LdpTime.MODE_6NS);
             device.setAbpTime(AbpTime.MODE_6NS);
             device.setChargeCancel(true);
-            device.setNoiseMode(NoiseMode.LOW_NOISE);
+            device.setNoiseMode(NoiseMode.LOW_NOISE);// TODO: remove
             break;
         case FRACTIONAL:
             device.setLdfMode(LdfMode.FRAC_N);
