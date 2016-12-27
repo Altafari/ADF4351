@@ -3,15 +3,12 @@ package adfctrl.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.function.Predicate;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import adfctrl.utils.IObserver;
 import adfctrl.utils.Observable;
 
-public class LabeledNumericField extends JPanel implements IObserver<Integer>, ActionListener {
+public class LabeledNumericField extends BorderedTitledPanel implements IObserver<Integer>, ActionListener {
     
     /**
      * 
@@ -23,8 +20,8 @@ public class LabeledNumericField extends JPanel implements IObserver<Integer>, A
     private Observable<Integer> model;
     
     public LabeledNumericField(String name, int size, Predicate<Integer> validator) {
+    	super(name);
         this.validator = validator;
-        this.add(new JLabel(name));
         field = new JTextField(size);
         field.addActionListener(this);
         this.add(field);

@@ -31,7 +31,7 @@ public class SwitchPanel extends JPanel {
     public final LabeledSliderSwitch<PowerMode> auxPowerSwitch;
     public final LabeledSliderSwitch<Boolean> auxSwitch;
     public final LabeledSliderSwitch<AuxMode> auxModeSwitch;    //TODO: move these two out
-    public final LabeledSliderSwitch<RfDivider> rfDividerSwitch;
+    public final LabeledComboBox<RfDivider> rfDividerSwitch;
     
     public SwitchPanel() {
         
@@ -118,13 +118,13 @@ public class SwitchPanel extends JPanel {
                 "1/32",
                 "1/64");
         
-        rfDividerSwitch = new LabeledSliderSwitch<RfDivider>(
+        rfDividerSwitch = new LabeledComboBox<RfDivider>(
                 "RF divider mode",
                 config.rfDividerMode,
                 rfDivModes,
                 rfDivLabels);
         
-        JPanel outputGroup = new ControlsGroup("Output controls");
+        JPanel outputGroup = new BorderedTitledPanel("Output controls");
         JPanel auxCol = new JPanel();
         auxCol.setLayout(new BoxLayout(auxCol, BoxLayout.PAGE_AXIS));
         JPanel outCol = new JPanel();
