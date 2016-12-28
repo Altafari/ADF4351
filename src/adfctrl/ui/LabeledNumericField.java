@@ -8,7 +8,7 @@ import javax.swing.JTextField;
 import adfctrl.utils.IObserver;
 import adfctrl.utils.Observable;
 
-public class LabeledNumericField extends BorderedTitledPanel implements IObserver<Integer>, ActionListener {
+public abstract class LabeledNumericField<T> extends BorderedTitledPanel implements IObserver<T>, ActionListener {
     
     /**
      * 
@@ -16,10 +16,10 @@ public class LabeledNumericField extends BorderedTitledPanel implements IObserve
     private static final long serialVersionUID = 1L;
     
     private JTextField field;
-    private Predicate<Integer> validator;
-    private Observable<Integer> model;
+    private Predicate<T> validator;
+    private Observable<T> model;
     
-    public LabeledNumericField(String name, int size, Predicate<Integer> validator) {
+    public LabeledNumericField(String name, int size, Predicate<T> validator) {
     	super(name);
         this.validator = validator;
         field = new JTextField(size);
@@ -27,13 +27,13 @@ public class LabeledNumericField extends BorderedTitledPanel implements IObserve
         this.add(field);
     }
 
-    public void setModel(Observable<Integer> model) {
+    public void setModel(Observable<T> model) {
         this.model = model;
         model.addObserver(this);
     }
     
     @Override
-    public void notifyChanged(Integer newVal) {
+    public void notifyChanged(T newVal) {
         this.field.setText(newVal.toString());        
     }
 
@@ -42,11 +42,13 @@ public class LabeledNumericField extends BorderedTitledPanel implements IObserve
         if (model == null) {
             return;
         }
-        Integer val = Integer.parseInt(field.getText());
+        T val = this.parseValue(field.getText());
         if (validator.test(val)) {
             model.setValue(val);
         } else {
             model.updateValueAndNotify(null);
         }
     }
+    
+    protected abstract T parseValue(String val);
 }

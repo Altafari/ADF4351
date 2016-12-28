@@ -6,9 +6,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import adfctrl.system.SystemManager;
-import adfctrl.utils.Observable;
-
 public class MainForm {
     
     private static void createAndShowGUI() {
@@ -21,24 +18,12 @@ public class MainForm {
     }
     
     private static void addComponentsToPane(Container pane) {
-        JPanel ctrlPanel = new JPanel();
-        
-        LabeledNumericField integerValueField = new LabeledNumericField(
-                "Integer", 6, (v) -> v > 0 && v < 100); // TODO: move validator to model         
-        ctrlPanel.add(integerValueField);
-        
-        LabeledNumericField fractionalValueField = new LabeledNumericField(
-                "Fractional", 6, (v) -> v > 0 && v < 100); // TODO: move validator to model         
-        ctrlPanel.add(fractionalValueField);
-        
-
-        
+        JPanel ctrlPanel = new JPanel();    
+        JPanel pllPanel = new PllPanel();
         JPanel switchPanel = new SwitchPanel();
-        switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.PAGE_AXIS));;
+        switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.PAGE_AXIS));
+        ctrlPanel.add(pllPanel);
         ctrlPanel.add(switchPanel);
-        
-        Observable<Integer> intVal = SystemManager.getInstance().getConfigurator().intValue; 
-        integerValueField.setModel(intVal);
         pane.add(ctrlPanel, BorderLayout.LINE_START); 
     }
     
