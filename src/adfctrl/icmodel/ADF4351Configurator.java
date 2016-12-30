@@ -27,6 +27,12 @@ public class ADF4351Configurator {
     public final Observable<Boolean> auxControl;
     public final Observable<AuxMode> auxMode;
     public final Observable<RfDivider> rfDividerMode;
+    public final Observable<Integer> clockDivider;
+    public final Observable<ClockDividerMode> clockDivMode;
+    public final Observable<Integer> bandSelectDivider;
+    public final Observable<BandSelect> bandSelectClockMode;
+    public final Observable<LockDetectPin> lockDetectPin;
+    public final Observable<Integer> cpCurrent;
     
     
     private ADF4351Proxy device;
@@ -73,6 +79,25 @@ public class ADF4351Configurator {
         
         rfDividerMode = new Observable<RfDivider>();
         rfDividerMode.addObserver((s) -> {device.setRfDivider(s); onConfigChanged();});
+        
+        clockDivider = new Observable<Integer>();
+        clockDivider.addObserver((s) -> {device.setClockDivider(s); onConfigChanged();});
+        
+        clockDivMode = new Observable<ClockDividerMode>();
+        clockDivMode.addObserver((s) -> {device.setClockDividerMode(s); onConfigChanged();});
+        
+        bandSelectDivider = new Observable<Integer>();
+        bandSelectDivider.addObserver((s) -> {device.setBandSelectDivider(s); onConfigChanged();});
+        
+        bandSelectClockMode = new Observable<BandSelect>();
+        bandSelectClockMode.addObserver((s) -> {device.setBandSelectClockMode(s); onConfigChanged();});
+        
+        lockDetectPin = new Observable<LockDetectPin>();
+        lockDetectPin.addObserver((s) -> {device.setLdPinMode(s); onConfigChanged();});
+        
+        cpCurrent = new Observable<Integer>();
+        cpCurrent.addObserver((s) -> {device.setCpCurrent(s); onConfigChanged();});
+        
         
         setDefaultValues();
         setReferenceMode(ReferenceMode.NORM);
