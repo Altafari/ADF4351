@@ -3,6 +3,8 @@ package adfctrl.ui;
 import java.awt.FlowLayout;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -22,6 +24,7 @@ public class SwitchPanel extends JPanel {
      * 
      */
     private static final long serialVersionUID = 1L;
+    private final static int NUM_CP_STATES = 16;
     
     public final LabeledSliderSwitch<SynthMode> synthModeSwitch;
     public final LabeledSliderSwitch<FeedbackMode> feedbackModeSwitch;
@@ -32,6 +35,7 @@ public class SwitchPanel extends JPanel {
     public final LabeledSliderSwitch<Boolean> auxSwitch;
     public final LabeledSliderSwitch<AuxMode> auxModeSwitch;    //TODO: move these two out
     public final LabeledComboBox<RfDivider> rfDividerSwitch;
+    public final LabeledComboBox<Integer> cpCurrent;
     
     public SwitchPanel() {
         
@@ -124,6 +128,13 @@ public class SwitchPanel extends JPanel {
                 rfDivModes,
                 rfDivLabels);
         
+        cpCurrent = new LabeledComboBox<Integer>(
+                "CP current",
+                config.cpCurrent,
+                IntStream.range(0, NUM_CP_STATES).boxed().collect(Collectors.toList()),
+                IntStream.range(0, NUM_CP_STATES).boxed().map((s) -> "Level " + s.toString())
+                .collect(Collectors.toList()));
+        
         JPanel outputGroup = new BorderedTitledPanel("Output controls");
         JPanel auxCol = new JPanel();
         auxCol.setLayout(new BoxLayout(auxCol, BoxLayout.PAGE_AXIS));
@@ -143,5 +154,6 @@ public class SwitchPanel extends JPanel {
         this.add(outputGroup);
         this.add(auxModeSwitch);
         this.add(rfDividerSwitch);
+        this.add(cpCurrent);
     }
 }

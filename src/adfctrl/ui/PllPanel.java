@@ -29,6 +29,7 @@ public class PllPanel extends BorderedTitledPanel {
 		modulusVal = new LabeledIntegerField(
 				"Modulus", 6, (v) -> v > 0 && v < 100);
 		
+		
 		referenceFreq.setModel(config.referenceFrequency);
 		integerVal.setModel(config.intValue);
 		fractionalVal.setModel(config.fracValue);
@@ -38,5 +39,4 @@ public class PllPanel extends BorderedTitledPanel {
 		this.add(fractionalVal);
 		this.add(modulusVal);
 	}
-
 }

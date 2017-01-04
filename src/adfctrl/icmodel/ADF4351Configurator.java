@@ -1,5 +1,7 @@
 package adfctrl.icmodel;
 
+import java.util.List;
+
 import adfctrl.icmodel.ADF4351Proxy.*;
 import adfctrl.utils.Observable;
 
@@ -11,6 +13,19 @@ public class ADF4351Configurator {
     
     public enum SynthMode {
         INTEGER, FRACTIONAL
+    }
+    
+    private class CustomObservable<T> extends Observable<T> {
+        
+        public CustomObservable(T val) {
+            super(val);
+        }
+        
+        @Override
+        protected void notifyObservers() {
+            super.notifyObservers();
+            ADF4351Configurator.this.onConfigChanged();
+        }
     }
 
     public final Observable<Double> referenceFrequency;
@@ -34,79 +49,80 @@ public class ADF4351Configurator {
     public final Observable<LockDetectPin> lockDetectPin;
     public final Observable<Integer> cpCurrent;
     
+    public final Observable<List<Integer>> bitState;
+    
     
     private ADF4351Proxy device;
     
     public ADF4351Configurator(ADF4351Proxy proxy) {
         device = proxy;
-        referenceFrequency = new Observable<Double>(100.0E6);
-        
-        referenceMode = new Observable<ReferenceMode>(ReferenceMode.NORM);
-        referenceMode.addObserver((s) -> {setReferenceMode(s); onConfigChanged();});
-        
-        synthMode = new Observable<SynthMode>(SynthMode.INTEGER);
-        synthMode.addObserver((s) -> {setSynthMode(s); onConfigChanged();});
-        
-        intValue = new Observable<Integer>();
-        intValue.addObserver((s) -> {device.setInteger(s); onConfigChanged();});
-        
-        fracValue = new Observable<Integer>();
-        fracValue.addObserver((s) -> {device.setFractional(s); onConfigChanged();});
-        
-        modValue = new Observable<Integer>();
-        modValue.addObserver((s) -> {device.setModulus(s); onConfigChanged();});
-        
-        feedbackMode = new Observable<FeedbackMode>();
-        feedbackMode.addObserver((s) -> {device.setFeedbackMode(s); onConfigChanged();});
-        
-        noiseMode = new Observable<NoiseMode>();
-        noiseMode.addObserver((s) -> {device.setNoiseMode(s); onConfigChanged();});
-        
-        outputPower = new Observable<PowerMode>();
-        outputPower.addObserver((s) -> {device.setOutputPower(s); onConfigChanged();});
-        
-        outputControl = new Observable<Boolean>();
-        outputControl.addObserver((s) -> {device.setRfOutEnable(s); onConfigChanged();});
-        
-        auxPower = new Observable<PowerMode>();
-        auxPower.addObserver((s) -> {device.setAuxPower(s); onConfigChanged();});
-        
-        auxControl = new Observable<Boolean>();
-        auxControl.addObserver((s) -> {device.setAuxEnable(s); onConfigChanged();});
-        
-        auxMode = new Observable<AuxMode>();
-        auxMode.addObserver((s) -> {device.setAuxMode(s); onConfigChanged();});
-        
-        rfDividerMode = new Observable<RfDivider>();
-        rfDividerMode.addObserver((s) -> {device.setRfDivider(s); onConfigChanged();});
-        
-        clockDivider = new Observable<Integer>();
-        clockDivider.addObserver((s) -> {device.setClockDivider(s); onConfigChanged();});
-        
-        clockDivMode = new Observable<ClockDividerMode>();
-        clockDivMode.addObserver((s) -> {device.setClockDividerMode(s); onConfigChanged();});
-        
-        bandSelectDivider = new Observable<Integer>();
-        bandSelectDivider.addObserver((s) -> {device.setBandSelectDivider(s); onConfigChanged();});
-        
-        bandSelectClockMode = new Observable<BandSelect>();
-        bandSelectClockMode.addObserver((s) -> {device.setBandSelectClockMode(s); onConfigChanged();});
-        
-        lockDetectPin = new Observable<LockDetectPin>();
-        lockDetectPin.addObserver((s) -> {device.setLdPinMode(s); onConfigChanged();});
-        
-        cpCurrent = new Observable<Integer>();
-        cpCurrent.addObserver((s) -> {device.setCpCurrent(s); onConfigChanged();});
-        
-        
         setDefaultValues();
-        setReferenceMode(ReferenceMode.NORM);
-        setSynthMode(SynthMode.INTEGER);
-        onConfigChanged();
+        
+        referenceFrequency = new CustomObservable<Double>(100.0E6);
+        
+        referenceMode = new CustomObservable<ReferenceMode>(ReferenceMode.NORM);
+        referenceMode.addObserver((s) -> setReferenceMode(s));
+        
+        synthMode = new CustomObservable<SynthMode>(SynthMode.INTEGER);
+        synthMode.addObserver((s) -> setSynthMode(s));
+        
+        intValue = new CustomObservable<Integer>(device.getInteger());
+        intValue.addObserver((s) -> device.setInteger(s));
+        
+        fracValue = new CustomObservable<Integer>(device.getFractional());
+        fracValue.addObserver((s) -> device.setFractional(s));
+        
+        modValue = new CustomObservable<Integer>(device.getModulus());
+        modValue.addObserver((s) -> device.setModulus(s));
+        
+        feedbackMode = new CustomObservable<FeedbackMode>(device.getFeedbackMode());
+        feedbackMode.addObserver((s) -> device.setFeedbackMode(s));
+        
+        noiseMode = new CustomObservable<NoiseMode>(device.getNoiseMode());
+        noiseMode.addObserver((s) -> device.setNoiseMode(s));
+        
+        outputPower = new CustomObservable<PowerMode>(device.getOutputPower());
+        outputPower.addObserver((s) -> device.setOutputPower(s));
+        
+        outputControl = new CustomObservable<Boolean>(device.getRfOutEnable());
+        outputControl.addObserver((s) -> device.setRfOutEnable(s));
+        
+        auxPower = new CustomObservable<PowerMode>(device.getAuxPower());
+        auxPower.addObserver((s) -> device.setAuxPower(s));
+        
+        auxControl = new CustomObservable<Boolean>(device.getAuxEnable());
+        auxControl.addObserver((s) -> device.setAuxEnable(s));
+        
+        auxMode = new CustomObservable<AuxMode>(device.getAuxMode());
+        auxMode.addObserver((s) -> device.setAuxMode(s));
+        
+        rfDividerMode = new CustomObservable<RfDivider>(device.getRfDivider());
+        rfDividerMode.addObserver((s) -> device.setRfDivider(s));
+        
+        clockDivider = new CustomObservable<Integer>(device.getClockDivider());
+        clockDivider.addObserver((s) -> device.setClockDivider(s));
+        
+        clockDivMode = new CustomObservable<ClockDividerMode>(device.getClockDividerMode());
+        clockDivMode.addObserver((s) -> device.setClockDividerMode(s));
+        
+        bandSelectDivider = new CustomObservable<Integer>(device.getBandSelectDivider());
+        bandSelectDivider.addObserver((s) -> device.setBandSelectDivider(s));
+        
+        bandSelectClockMode = new CustomObservable<BandSelect>(device.getBandSelectClockMode());
+        bandSelectClockMode.addObserver((s) -> device.setBandSelectClockMode(s));
+        
+        lockDetectPin = new CustomObservable<LockDetectPin>(device.getLdPinMode());
+        lockDetectPin.addObserver((s) -> device.setLdPinMode(s));
+        
+        cpCurrent = new CustomObservable<Integer>(device.getCpCurrent());
+        cpCurrent.addObserver((s) -> device.setCpCurrent(s));
+        
+        bitState = new Observable<List<Integer>>();
     }
     
     private void onConfigChanged() {
         // TODO: HW config update hook
+        bitState.setValue(device.getBitState());
     }
     
     public void setSynthMode(SynthMode mode) {
@@ -116,14 +132,12 @@ public class ADF4351Configurator {
             device.setLdpTime(LdpTime.MODE_6NS);
             device.setAbpTime(AbpTime.MODE_6NS);
             device.setChargeCancel(true);
-            device.setNoiseMode(NoiseMode.LOW_NOISE);// TODO: remove
             break;
         case FRACTIONAL:
             device.setLdfMode(LdfMode.FRAC_N);
             device.setLdpTime(LdpTime.MODE_10NS);
             device.setAbpTime(AbpTime.MODE_3NS);
             device.setChargeCancel(false);
-            device.setNoiseMode(NoiseMode.LOW_SPUR);
         }
     }
     

@@ -46,7 +46,7 @@ public class Observable<T> {
         return value;
     }
     
-    private void notifyObservers() {
+    protected void notifyObservers() {
         for(IObserver<T> obs : observers) {
             obs.notifyChanged(value);
         }

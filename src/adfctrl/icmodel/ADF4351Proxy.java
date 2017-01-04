@@ -1,5 +1,8 @@
 package adfctrl.icmodel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ADF4351Proxy {
     // ADF4351 internal state variables
     // Register 0
@@ -523,6 +526,14 @@ public class ADF4351Proxy {
         return lockDetectPin;
     }
 
+    public List<Integer> getBitState() {
+        ArrayList<Integer> res = new ArrayList<Integer>(5);
+        for (int i = 0; i < 6; i++) {
+            res.add(getRegister(i));
+        }
+        return res;
+    }
+    
     public int getRegister(int reg) {
         BitBuffer buff = new BitBuffer();
         switch (reg) {
