@@ -6,9 +6,8 @@ import java.util.function.Predicate;
 import javax.swing.JTextField;
 
 import adfctrl.utils.IObserver;
-import adfctrl.utils.Observable;
 
-public abstract class LabeledNumericField<T> extends BorderedTitledPanel implements IObserver<T>, ActionListener {
+public abstract class LabeledNumericField<T> extends BorderedModelView<T> implements IObserver<T>, ActionListener {
     
     /**
      * 
@@ -17,7 +16,6 @@ public abstract class LabeledNumericField<T> extends BorderedTitledPanel impleme
     
     private JTextField field;
     private Predicate<T> validator;
-    private Observable<T> model;
     
     public LabeledNumericField(String name, int size, Predicate<T> validator) {
     	super(name);
@@ -25,11 +23,6 @@ public abstract class LabeledNumericField<T> extends BorderedTitledPanel impleme
         field = new JTextField(size);
         field.addActionListener(this);
         this.add(field);
-    }
-
-    public void setModel(Observable<T> model) {
-        this.model = model;
-        model.addObserver(this);
     }
     
     @Override

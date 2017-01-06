@@ -24,6 +24,7 @@ public class MainForm {
         switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.PAGE_AXIS));
         ctrlPanel.add(pllPanel);
         ctrlPanel.add(switchPanel);
+        ctrlPanel.add(new DeviceBitView());
         pane.add(ctrlPanel, BorderLayout.LINE_START); 
     }
     

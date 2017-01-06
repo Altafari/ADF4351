@@ -13,7 +13,7 @@ import javax.swing.event.ChangeListener;
 import adfctrl.utils.IObserver;
 import adfctrl.utils.Observable;
 
-public class LabeledSliderSwitch<T> extends BorderedTitledPanel implements IObserver<T>, ChangeListener{
+public class LabeledSliderSwitch<T> extends BorderedModelView<T> implements IObserver<T>, ChangeListener {
 
     /**
      * 
@@ -21,13 +21,11 @@ public class LabeledSliderSwitch<T> extends BorderedTitledPanel implements IObse
     private static final long serialVersionUID = 1L;
 
     private final int INNER_PADDING = 2;
-    private final Observable<T> model;
     private final List<T> states;
     private final JSlider slider;
     
     public LabeledSliderSwitch(String title, Observable<T> model, List<T> states, List<String> labels) {
-        super(title);      
-        this.model = model;
+        super(title);              
         this.states = states;
         Hashtable<Object, Object> nLabels = new Hashtable<Object, Object>();
         int maxHeight = 0;
@@ -45,7 +43,9 @@ public class LabeledSliderSwitch<T> extends BorderedTitledPanel implements IObse
         slider.setLabelTable(nLabels);
         int sliderWidth = slider.getPreferredSize().width;
         slider.setPreferredSize(new Dimension(sliderWidth, maxHeight * states.size()));
+        slider.addChangeListener(this);
         this.add(slider);
+        this.setModel(model);
     }
     
     @Override

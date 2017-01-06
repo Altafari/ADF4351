@@ -11,42 +11,42 @@ public class ADF4351Proxy {
     // Register 1
     private int modulusVal;
     private int phaseVal;
-    private PrescallerMode prescallerMode;
+    private PrescallerMode prescallerMode = PrescallerMode.MODE_4DIV5;
     private boolean phaseAdjust;
     // Register 2
     private boolean counterReset;
     private boolean cpThreeState;
     private boolean powerDown;
-    private PdPolarity pdPolarity;
-    private LdpTime ldpTime;
-    private LdfMode ldfMode;
+    private PdPolarity pdPolarity = PdPolarity.NEGATIVE;
+    private LdpTime ldpTime = LdpTime.MODE_10NS;
+    private LdfMode ldfMode = LdfMode.FRAC_N;
     private int cpCurrent;
     private boolean doubleBuffer;
     private int rCounter;
     private boolean refDivBy2;
     private boolean refDoubler;
-    private MuxOutMode muxOut;
-    private NoiseMode noiseMode;
+    private MuxOutMode muxOut = MuxOutMode.ANALOG_LOCK;
+    private NoiseMode noiseMode = NoiseMode.LOW_NOISE;
     // Register 3
     private int clockDivider;
-    private ClockDividerMode clockDividerMode;
+    private ClockDividerMode clockDividerMode = ClockDividerMode.CLOCK_DIVIDER_OFF;
     private boolean cycleSlipReduction;
     private boolean chargeCancel;
-    private AbpTime abpTime;
-    private BandSelect bandSelectClockMode;
+    private AbpTime abpTime = AbpTime.MODE_3NS;
+    private BandSelect bandSelectClockMode = BandSelect.HIGH;
     // Register 4
-    private PowerMode outputPower;
+    private PowerMode outputPower = PowerMode.MODE_PLUS_2DBM;
     private boolean rfOutEnable;
-    private PowerMode auxPower;
+    private PowerMode auxPower = PowerMode.MODE_PLUS_2DBM;
     private boolean auxEnable;
-    private AuxMode auxMode;
+    private AuxMode auxMode = AuxMode.DIVIDED_OUTPUT;
     private boolean muteTillLd;
     private boolean vcoPowerDown;
     private int bandSelectDivider;
-    private RfDivider rfDivider;
-    private FeedbackMode feedbackMode;
+    private RfDivider rfDivider = RfDivider.DIV_1;
+    private FeedbackMode feedbackMode = FeedbackMode.DIVIDED;
     // Register 5
-    private LockDetectPin lockDetectPin;
+    private LockDetectPin lockDetectPin = LockDetectPin.DIGITAL_LD;
 
     private static class BitArray {
         public final int bitMask;
@@ -564,6 +564,7 @@ public class ADF4351Proxy {
             buff.putBit(this.refDoubler, 24);
             buff.putArgument(this.muxOut.ordinal(), MUX_OUT_BITS);
             buff.putArgument(this.noiseMode.ordinal(), NOISE_MODE_BITS);
+            break;
         case 3:
             buff.init(3);
             buff.putArgument(this.clockDivider, CLOCK_DIVIDER_BITS);

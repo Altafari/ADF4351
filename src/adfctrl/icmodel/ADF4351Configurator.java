@@ -122,7 +122,7 @@ public class ADF4351Configurator {
     
     private void onConfigChanged() {
         // TODO: HW config update hook
-        bitState.setValue(device.getBitState());
+        bitState.updateValueAndNotify(device.getBitState());
     }
     
     public void setSynthMode(SynthMode mode) {
