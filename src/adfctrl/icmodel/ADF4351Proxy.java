@@ -11,42 +11,42 @@ public class ADF4351Proxy {
     // Register 1
     private int modulusVal;
     private int phaseVal;
-    private PrescallerMode prescallerMode = PrescallerMode.MODE_4DIV5;
+    private PrescallerMode prescallerMode;
     private boolean phaseAdjust;
     // Register 2
     private boolean counterReset;
     private boolean cpThreeState;
     private boolean powerDown;
-    private PdPolarity pdPolarity = PdPolarity.NEGATIVE;
-    private LdpTime ldpTime = LdpTime.MODE_10NS;
-    private LdfMode ldfMode = LdfMode.FRAC_N;
+    private PdPolarity pdPolarity;
+    private LdpTime ldpTime;
+    private LdfMode ldfMode;
     private int cpCurrent;
     private boolean doubleBuffer;
     private int rCounter;
     private boolean refDivBy2;
     private boolean refDoubler;
-    private MuxOutMode muxOut = MuxOutMode.ANALOG_LOCK;
-    private NoiseMode noiseMode = NoiseMode.LOW_NOISE;
+    private MuxOutMode muxOut;
+    private NoiseMode noiseMode;
     // Register 3
     private int clockDivider;
-    private ClockDividerMode clockDividerMode = ClockDividerMode.CLOCK_DIVIDER_OFF;
+    private ClockDividerMode clockDividerMode;
     private boolean cycleSlipReduction;
     private boolean chargeCancel;
-    private AbpTime abpTime = AbpTime.MODE_3NS;
-    private BandSelect bandSelectClockMode = BandSelect.HIGH;
+    private AbpTime abpTime;
+    private BandSelect bandSelectClockMode;
     // Register 4
-    private PowerMode outputPower = PowerMode.MODE_PLUS_2DBM;
+    private PowerMode outputPower;
     private boolean rfOutEnable;
-    private PowerMode auxPower = PowerMode.MODE_PLUS_2DBM;
+    private PowerMode auxPower;
     private boolean auxEnable;
-    private AuxMode auxMode = AuxMode.DIVIDED_OUTPUT;
+    private AuxMode auxMode;
     private boolean muteTillLd;
     private boolean vcoPowerDown;
     private int bandSelectDivider;
-    private RfDivider rfDivider = RfDivider.DIV_1;
-    private FeedbackMode feedbackMode = FeedbackMode.DIVIDED;
+    private RfDivider rfDivider;
+    private FeedbackMode feedbackMode;
     // Register 5
-    private LockDetectPin lockDetectPin = LockDetectPin.DIGITAL_LD;
+    private LockDetectPin lockDetectPin;
 
     private static class BitArray {
         public final int bitMask;
@@ -66,7 +66,6 @@ public class ADF4351Proxy {
         private int buff;
         
         public BitBuffer() {
-            // Empty
         }
         
         public void init(int val) {
@@ -194,7 +193,6 @@ public class ADF4351Proxy {
     }
 
     // Register 5
-    
     private final static int reserved = 3;
     private final static BitArray RESERVED_11 = new BitArray(2, 19); 
     
@@ -205,7 +203,7 @@ public class ADF4351Proxy {
     private final static BitArray LOCK_DETECT_BITS = new BitArray(2, 22);
     
     public ADF4351Proxy() {
-        // Empty
+        initDefaultValues();
     }
 
     // Register 0
@@ -596,5 +594,49 @@ public class ADF4351Proxy {
             throw new IllegalArgumentException("Unknown register number: " + reg);
         }
         return buff.getInt();
+    }
+    
+    private void initDefaultValues() {
+        integerVal = MIN_INTEGER;
+        fractionalVal = MIN_FRACTIONAL;
+        // Register 1
+        modulusVal = MIN_MODULUS;
+        phaseVal = DEFAULT_PHASE;
+        prescallerMode = PrescallerMode.MODE_4DIV5;
+        phaseAdjust = false;
+        // Register 2
+        counterReset = false;               // Three bellow are not used now, keep false
+        cpThreeState = false;
+        powerDown = false;
+        pdPolarity = PdPolarity.POSITIVE;   // Passive loop cbc
+        ldpTime = LdpTime.MODE_10NS;        // Fractional-N cbc
+        ldfMode = LdfMode.FRAC_N;           // Controls two above
+        cpCurrent = MIN_CP_CURRENT;
+        doubleBuffer = false;
+        rCounter = MIN_R_COUNTER;
+        refDivBy2 = false;                  // Mode - normal cbc
+        refDoubler = false;                 // cbc
+        muxOut = MuxOutMode.ANALOG_LOCK;
+        noiseMode = NoiseMode.LOW_SPUR;     // Should be probably cbc TBD
+        // Register 3
+        clockDivider = MIN_CLOCK_DIVIDER;   // Should be cbc auto
+        clockDividerMode = ClockDividerMode.CLOCK_DIVIDER_OFF;  // Should be cbc auto
+        cycleSlipReduction = false;
+        chargeCancel = false;
+        abpTime = AbpTime.MODE_6NS;         // Fractional-N should be cbc         
+        bandSelectClockMode = BandSelect.LOW;   // Not used now, for low PFD freq.
+        // Register 4
+        outputPower = PowerMode.MODE_PLUS_2DBM;
+        rfOutEnable = false;
+        auxPower = PowerMode.MODE_PLUS_2DBM;
+        auxEnable = false;
+        auxMode = AuxMode.DIVIDED_OUTPUT;
+        muteTillLd = false;
+        vcoPowerDown = false;               // Not used now
+        bandSelectDivider = MIN_BAND_SELECT_DIVIDER;
+        rfDivider = RfDivider.DIV_1;
+        feedbackMode = FeedbackMode.DIVIDED;
+        // Register 5
+        lockDetectPin = LockDetectPin.DIGITAL_LD;
     }
 }

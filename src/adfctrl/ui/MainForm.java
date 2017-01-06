@@ -6,6 +6,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import adfctrl.system.SystemManager;
+
 public class MainForm {
     
     private static void createAndShowGUI() {
@@ -24,7 +26,7 @@ public class MainForm {
         switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.PAGE_AXIS));
         ctrlPanel.add(pllPanel);
         ctrlPanel.add(switchPanel);
-        ctrlPanel.add(new DeviceBitView());
+        ctrlPanel.add(new DeviceBitView(SystemManager.getInstance().getConfigurator().bitState));
         pane.add(ctrlPanel, BorderLayout.LINE_START); 
     }
     

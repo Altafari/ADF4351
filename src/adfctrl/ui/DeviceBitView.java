@@ -6,11 +6,12 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 
-import adfctrl.system.SystemManager;
 import adfctrl.utils.IObserver;
+import adfctrl.utils.Observable;
 
 public class DeviceBitView extends BorderedTitledPanel implements IObserver<List<Integer>>{
 
@@ -20,9 +21,9 @@ public class DeviceBitView extends BorderedTitledPanel implements IObserver<List
          * 
          */
         private static final long serialVersionUID = 1L;
-        private static final int INSET = 2;
-        private static final int WIDTH = 10;
-        private static final int HEIGHT = 14;
+        private static final int INSET = 1;
+        private static final int WIDTH = 9;
+        private static final int HEIGHT = 10;
         private boolean state;        
         
         public void setState(boolean b) {
@@ -66,7 +67,7 @@ public class DeviceBitView extends BorderedTitledPanel implements IObserver<List
          * 
          */
         private static final long serialVersionUID = 1L;
-        
+        private static final int BYTE_GAP = 3;
         private List<BitView> bitViews;
         
         public BitViewRow(String title, int nBits) {
@@ -77,6 +78,9 @@ public class DeviceBitView extends BorderedTitledPanel implements IObserver<List
             }
             for (int i = nBits - 1; i >= 0; i--) {
                 this.add(bitViews.get(i));
+                if (i > 0 && (i % 8) == 0) {
+                    this.add(Box.createHorizontalStrut(BYTE_GAP));
+                }
             }
         }
         
@@ -96,7 +100,7 @@ public class DeviceBitView extends BorderedTitledPanel implements IObserver<List
 
     private List<BitViewRow> rows;
     
-    public DeviceBitView() {        
+    public DeviceBitView(Observable<List<Integer>> model) {        
         super("Device bit state");
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         rows = new ArrayList<BitViewRow>(N_ROWS);
@@ -105,7 +109,7 @@ public class DeviceBitView extends BorderedTitledPanel implements IObserver<List
             rows.add(b);
             this.add(b);
         }
-        SystemManager.getInstance().getConfigurator().bitState.addObserver(this);
+        model.addObserver(this);
     }
 
     @Override

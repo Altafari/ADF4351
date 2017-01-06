@@ -1,11 +1,15 @@
 package adfctrl.icmodel;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import adfctrl.icmodel.ADF4351Proxy.*;
 import adfctrl.utils.Observable;
 
 public class ADF4351Configurator {
+    
+    private final double MAX_PFD_FREQ_INT = 90.0E6;
+    private final double MAX_PFD_FREQ_FRAC = 32.0E6;
     
     public enum ReferenceMode {
         DIV2, NORM, X2
@@ -34,6 +38,7 @@ public class ADF4351Configurator {
     public final Observable<Integer> intValue;
     public final Observable<Integer> fracValue;
     public final Observable<Integer> modValue;
+    public final Observable<PrescallerMode> prescallerMode;
     public final Observable<FeedbackMode> feedbackMode;
     public final Observable<NoiseMode> noiseMode;
     public final Observable<PowerMode> outputPower;
@@ -56,7 +61,6 @@ public class ADF4351Configurator {
     
     public ADF4351Configurator(ADF4351Proxy proxy) {
         device = proxy;
-        setDefaultValues();
         
         referenceFrequency = new CustomObservable<Double>(100.0E6);
         
@@ -74,6 +78,9 @@ public class ADF4351Configurator {
         
         modValue = new CustomObservable<Integer>(device.getModulus());
         modValue.addObserver((s) -> device.setModulus(s));
+        
+        prescallerMode = new CustomObservable<PrescallerMode>(device.getPrescaller());
+        prescallerMode.addObserver((s) -> device.setPrescaller(s));
         
         feedbackMode = new CustomObservable<FeedbackMode>(device.getFeedbackMode());
         feedbackMode.addObserver((s) -> device.setFeedbackMode(s));
@@ -157,27 +164,23 @@ public class ADF4351Configurator {
         }
     }
     
-    private void setDefaultValues() {
-        device.setVcoPowerDown(false);
-        device.setPowerDown(false);
-        device.setBandSelectClockMode(BandSelect.LOW);
-        device.setCpThreeState(false);
-        device.setCounterReset(false);
-        device.setFeedbackMode(FeedbackMode.DIVIDED);
-        device.setPhase(1);
-        device.setPhaseAdjust(false);
-        device.setPdPolarity(PdPolarity.POSITIVE);
-        device.setClockDividerMode(ClockDividerMode.CLOCK_DIVIDER_OFF);
-        device.setCycleSlipReduction(false);
-        device.setDoubleBuffer(false);
-        device.setMuxOutMode(MuxOutMode.ANALOG_LOCK);
-        device.setOutputPower(PowerMode.MODE_PLUS_2DBM);
-        device.setRfOutEnable(true);
-        device.setAuxPower(PowerMode.MODE_PLUS_2DBM);
-        device.setAuxEnable(true);
-        device.setAuxMode(AuxMode.DIVIDED_OUTPUT);
-        device.setMuteTillLd(false);
-        device.setRfDivider(RfDivider.DIV_64);
-        device.setLdPinMode(LockDetectPin.DIGITAL_LD);
+    Predicate<Integer> getValidator(Observable<Integer> val) {
+        if (val == intValue) {
+            return (s) -> {
+                if (prescallerMode.getValue() == PrescallerMode.MODE_4DIV5) {
+                    return s >= 23 && s <= 65535;
+                } else {
+                    return s >= 75 && s <= 65535;
+                }
+            };
+        }
+        if (val == fracValue) {
+            return (s) -> s >= 0 && s < modValue.getValue();
+        }
+        if (val == modValue) {
+            return (s) -> s >= 2 && s <= 4095;
+        }
+        // TODO: all the stuff...
+        return null;
     }
 }
