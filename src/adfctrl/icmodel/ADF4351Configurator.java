@@ -1,6 +1,7 @@
 package adfctrl.icmodel;
 
 import java.util.List;
+import java.util.function.DoubleSupplier;
 import java.util.function.Predicate;
 
 import adfctrl.icmodel.ADF4351Proxy.*;
@@ -8,15 +9,16 @@ import adfctrl.utils.Observable;
 
 public class ADF4351Configurator {
     
-    private final double MAX_PFD_FREQ_INT = 90.0E6;
-    private final double MAX_PFD_FREQ_FRAC = 32.0E6;
-    
     public enum ReferenceMode {
         DIV2, NORM, X2
     }
     
     public enum SynthMode {
         INTEGER, FRACTIONAL
+    }
+    
+    public enum FunctionId {
+        VCO_FREQ, PFD_FREQ, OUT_FREQ, AUX_FREQ, VCO_SEL_FREQ
     }
     
     private class CustomObservable<T> extends Observable<T> {
@@ -38,7 +40,8 @@ public class ADF4351Configurator {
     public final Observable<Integer> intValue;
     public final Observable<Integer> fracValue;
     public final Observable<Integer> modValue;
-    public final Observable<PrescallerMode> prescallerMode;
+    public final Observable<Integer> rCounter;
+    public final Observable<PrescalerMode> prescalerMode;
     public final Observable<FeedbackMode> feedbackMode;
     public final Observable<NoiseMode> noiseMode;
     public final Observable<PowerMode> outputPower;
@@ -79,8 +82,11 @@ public class ADF4351Configurator {
         modValue = new CustomObservable<Integer>(device.getModulus());
         modValue.addObserver((s) -> device.setModulus(s));
         
-        prescallerMode = new CustomObservable<PrescallerMode>(device.getPrescaller());
-        prescallerMode.addObserver((s) -> device.setPrescaller(s));
+        rCounter = new CustomObservable<Integer>(device.getRcounter());
+        rCounter.addObserver((s) -> device.setRcounter(s));
+        
+        prescalerMode = new CustomObservable<PrescalerMode>(device.getPrescaller());
+        prescalerMode.addObserver((s) -> device.setPrescaller(s));
         
         feedbackMode = new CustomObservable<FeedbackMode>(device.getFeedbackMode());
         feedbackMode.addObserver((s) -> device.setFeedbackMode(s));
@@ -163,24 +169,114 @@ public class ADF4351Configurator {
             device.setReferenceDoubler(true);
         }
     }
-    
-    Predicate<Integer> getValidator(Observable<Integer> val) {
+   
+    public <T> Predicate<T> getValidator(Observable<T> val) {
+        if (val == referenceFrequency) {
+            return (s) -> (Double)s >= 0.0 && (Double)s <= 250.0E6;
+        }
         if (val == intValue) {
             return (s) -> {
-                if (prescallerMode.getValue() == PrescallerMode.MODE_4DIV5) {
-                    return s >= 23 && s <= 65535;
+                if (prescalerMode.getValue() == PrescalerMode.MODE_4DIV5) {
+                    return (Integer)s >= 23 && (Integer)s <= 65535;
                 } else {
-                    return s >= 75 && s <= 65535;
+                    return (Integer)s >= 75 && (Integer)s <= 65535;
                 }
             };
         }
         if (val == fracValue) {
-            return (s) -> s >= 0 && s < modValue.getValue();
+            return (s) -> (Integer)s >= 0 && (Integer)s < modValue.getValue();
         }
         if (val == modValue) {
-            return (s) -> s >= 2 && s <= 4095;
+            return (s) -> (Integer)s >= 2 && (Integer)s <= 4095;
+        }        
+        if (val == rCounter) {
+            return (s) -> (Integer)s >= 1 && (Integer)s <= 1023;
         }
-        // TODO: all the stuff...
-        return null;
+        throw new IllegalArgumentException("Not a member of the configurator instance");
+    }
+    
+    public DoubleSupplier getFunction(FunctionId id) {
+        switch (id) {
+        case VCO_FREQ:
+            return () -> getVcoFrequency();
+        case PFD_FREQ:
+            return () -> getPfdFrequency();
+        case OUT_FREQ:
+            return () -> getOutputFrequency();
+        case AUX_FREQ:
+            return () -> getAuxFrequency();
+        case VCO_SEL_FREQ:
+            // TODO-DO-DO-DOOO....
+            break;
+        }
+        throw new IllegalArgumentException("Unknown function");
+    }
+    
+    private double getVcoFrequency() {
+        if (this.feedbackMode.getValue() == FeedbackMode.DIVIDED) {
+            return getPllScaleFactor() * getRfDividerFactor() * getPfdFrequency();
+        } else {                        // Fundamental
+            return getPllScaleFactor() * getPfdFrequency();
+        }
+    }
+
+    private double getPfdFrequency() {
+        return getRefScaleFactor() * referenceFrequency.getValue() / rCounter.getValue();
+    }
+    
+    private double getOutputFrequency() {
+        if (this.feedbackMode.getValue() == FeedbackMode.DIVIDED) {
+            return getPllScaleFactor() * getPfdFrequency();
+        } else {                        // Fundamental
+            return (getPllScaleFactor() * getPfdFrequency()) / getRfDividerFactor();
+        }
+    }
+
+    private double getAuxFrequency() {
+        if (auxMode.getValue() == AuxMode.FUNDAMENTAL) {
+            return getVcoFrequency();
+        } else {
+            return getOutputFrequency();
+        }
+    }
+    
+    private double getPllScaleFactor() {
+        if (this.synthMode.getValue() == SynthMode.INTEGER) {
+            return intValue.getValue();
+        } else {
+            return intValue.getValue() + (fracValue.getValue() / modValue.getValue());
+        }
+    }
+    
+    private double getRefScaleFactor() {
+        switch (referenceMode.getValue()) {
+        case DIV2:
+            return 0.5;
+        case NORM:
+            return 1.0;
+        case X2:
+            return 2.0;
+        }
+        throw new IllegalArgumentException("Illegal internal state");
+    }
+    
+    private double getRfDividerFactor() {
+        switch (rfDividerMode.getValue()) {
+        case DIV_1:
+            return 1.0;
+        case DIV_2:
+            return 2.0;
+        case DIV_4:
+            return 4.0;
+        case DIV_8:
+            return 8.0;
+        case DIV_16:
+            return 16.0;
+        case DIV_32:
+            return 32.0;
+        case DIV_64:
+            return 64.0;
+        }
+        throw new IllegalArgumentException("Illegal internal state");
     }
 }

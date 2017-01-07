@@ -21,19 +21,26 @@ public class PllPanel extends BorderedTitledPanel {
 		ADF4351Configurator config = sysMgr.getConfigurator();
 		
 		referenceFreq = new LabeledDoubleField(
-				"Reference freq.", 8, (v) -> v < Double.MAX_VALUE && v > 0.0);
+				"Reference freq.",
+				8,
+				config.referenceFrequency,
+				config.getValidator(config.referenceFrequency));
 		integerVal = new LabeledIntegerField(
-				"Integer", 6, (v) -> v > 0 && v < 100);
+				"Integer",
+				6,
+				config.intValue,
+				config.getValidator(config.intValue));
 		fractionalVal = new LabeledIntegerField(
-				"Fractional", 6, (v) -> v > 0 && v < 100);
+				"Fractional",
+				6,
+				config.fracValue,
+				config.getValidator(config.fracValue));
 		modulusVal = new LabeledIntegerField(
-				"Modulus", 6, (v) -> v > 0 && v < 100);
-		
-		
-		referenceFreq.setModel(config.referenceFrequency);
-		integerVal.setModel(config.intValue);
-		fractionalVal.setModel(config.fracValue);
-		modulusVal.setModel(config.modValue);
+				"Modulus",
+				6,
+				config.modValue,
+				config.getValidator(config.modValue));
+
 		this.add(referenceFreq);
 		this.add(integerVal);
 		this.add(fractionalVal);

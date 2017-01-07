@@ -11,7 +11,7 @@ public class ADF4351Proxy {
     // Register 1
     private int modulusVal;
     private int phaseVal;
-    private PrescallerMode prescallerMode;
+    private PrescalerMode prescalerMode;
     private boolean phaseAdjust;
     // Register 2
     private boolean counterReset;
@@ -108,7 +108,7 @@ public class ADF4351Proxy {
     
     public final static int DEFAULT_PHASE = 1;
 
-    public enum PrescallerMode {
+    public enum PrescalerMode {
         MODE_4DIV5, MODE_8DIV9
     }
 
@@ -252,12 +252,12 @@ public class ADF4351Proxy {
         return phaseVal;
     }
 
-    public void setPrescaller(PrescallerMode val) {
-        prescallerMode = val;
+    public void setPrescaller(PrescalerMode val) {
+        prescalerMode = val;
     }
 
-    public PrescallerMode getPrescaller() {
-        return prescallerMode;
+    public PrescalerMode getPrescaller() {
+        return prescalerMode;
     }
 
     public void setPhaseAdjust(boolean val) {
@@ -544,7 +544,7 @@ public class ADF4351Proxy {
             buff.init(1);
             buff.putArgument(this.modulusVal, MODULUS_VAL_BITS);
             buff.putArgument(this.phaseVal, PHASE_VAL_BITS);
-            buff.putBit(this.prescallerMode == PrescallerMode.MODE_8DIV9, 27);
+            buff.putBit(this.prescalerMode == PrescalerMode.MODE_8DIV9, 27);
             buff.putBit(this.phaseAdjust, 28);
             break;
         case 2:
@@ -602,7 +602,7 @@ public class ADF4351Proxy {
         // Register 1
         modulusVal = MIN_MODULUS;
         phaseVal = DEFAULT_PHASE;
-        prescallerMode = PrescallerMode.MODE_4DIV5;
+        prescalerMode = PrescalerMode.MODE_4DIV5;
         phaseAdjust = false;
         // Register 2
         counterReset = false;               // Three bellow are not used now, keep false
