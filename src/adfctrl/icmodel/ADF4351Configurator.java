@@ -192,6 +192,9 @@ public class ADF4351Configurator {
         if (val == rCounter) {
             return (s) -> (Integer)s >= 1 && (Integer)s <= 1023;
         }
+        if (val == bandSelectDivider) {
+            return (s) -> (Integer)s >= 1 && (Integer)s <= 255;
+        }
         throw new IllegalArgumentException("Not a member of the configurator instance");
     }
     
@@ -206,8 +209,7 @@ public class ADF4351Configurator {
         case AUX_FREQ:
             return () -> getAuxFrequency();
         case VCO_SEL_FREQ:
-            // TODO-DO-DO-DOOO....
-            break;
+            return () -> getPfdFrequency() / bandSelectDivider.getValue();
         }
         throw new IllegalArgumentException("Unknown function");
     }

@@ -37,8 +37,11 @@ public abstract class LabeledNumericField<T> extends BorderedModelView<T> implem
         if (model == null) {
             return;
         }
-        T val = this.parseValue(field.getText());
-        if (validator.test(val)) {
+        T val = null;
+        try {
+            val = this.parseValue(field.getText());
+        } catch (Exception ex) { }
+        if (val != null && validator.test(val)) {
             model.setValue(val);
         } else {
             model.updateValueAndNotify(null);

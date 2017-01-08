@@ -17,7 +17,7 @@ public class LabeledIntegerField extends LabeledNumericField<Integer> {
 
 	@Override
 	protected Integer parseValue(String val) {
-		return Integer.parseInt(val);
+	    return Integer.parseInt(val);
 	}
 
 }
