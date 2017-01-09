@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import adfctrl.system.SystemManager;
+import adfctrl.ui.sevenseg.SevenSegment;
 
 public class MainForm {
     
@@ -27,6 +28,7 @@ public class MainForm {
         ctrlPanel.add(pllPanel);
         ctrlPanel.add(switchPanel);
         ctrlPanel.add(new DeviceBitView(SystemManager.getInstance().getConfigurator().bitState));
+        ctrlPanel.add(new SevenSegment(5, 3, null));
         pane.add(ctrlPanel, BorderLayout.LINE_START); 
     }
     
