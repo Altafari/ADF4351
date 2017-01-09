@@ -1,7 +1,6 @@
 package adfctrl.icmodel;
 
 import java.util.List;
-import java.util.function.DoubleSupplier;
 import java.util.function.Predicate;
 
 import adfctrl.icmodel.ADF4351Proxy.*;
@@ -198,56 +197,42 @@ public class ADF4351Configurator {
         throw new IllegalArgumentException("Not a member of the configurator instance");
     }
     
-    public DoubleSupplier getFunction(FunctionId id) {
-        switch (id) {
-        case VCO_FREQ:
-            return () -> getVcoFrequency();
-        case PFD_FREQ:
-            return () -> getPfdFrequency();
-        case OUT_FREQ:
-            return () -> getOutputFrequency();
-        case AUX_FREQ:
-            return () -> getAuxFrequency();
-        case VCO_SEL_FREQ:
-            return () -> getPfdFrequency() / bandSelectDivider.getValue();
-        }
-        throw new IllegalArgumentException("Unknown function");
-    }
-    
-    private double getVcoFrequency() {
-        if (this.feedbackMode.getValue() == FeedbackMode.DIVIDED) {
-            return getPllScaleFactor() * getRfDividerFactor() * getPfdFrequency();
-        } else {                        // Fundamental
-            return getPllScaleFactor() * getPfdFrequency();
-        }
-    }
+    public ADF4351Freq getFreq() {
+        double pllScaleFactor;        
+        double vcoFreq;
+        double pfdFreq;
+        double outFreq;
+        double auxFreq;
+        double vcoSelFreq;
 
-    private double getPfdFrequency() {
-        return getRefScaleFactor() * referenceFrequency.getValue() / rCounter.getValue();
-    }
-    
-    private double getOutputFrequency() {
-        if (this.feedbackMode.getValue() == FeedbackMode.DIVIDED) {
-            return getPllScaleFactor() * getPfdFrequency();
-        } else {                        // Fundamental
-            return (getPllScaleFactor() * getPfdFrequency()) / getRfDividerFactor();
-        }
-    }
-
-    private double getAuxFrequency() {
-        if (auxMode.getValue() == AuxMode.FUNDAMENTAL) {
-            return getVcoFrequency();
-        } else {
-            return getOutputFrequency();
-        }
-    }
-    
-    private double getPllScaleFactor() {
         if (this.synthMode.getValue() == SynthMode.INTEGER) {
-            return intValue.getValue();
+            pllScaleFactor = intValue.getValue();
         } else {
-            return intValue.getValue() + (fracValue.getValue() / modValue.getValue());
+            pllScaleFactor = intValue.getValue() + (fracValue.getValue() / modValue.getValue());
         }
+        pfdFreq = getRefScaleFactor() * referenceFrequency.getValue() / rCounter.getValue();
+        if (this.feedbackMode.getValue() == FeedbackMode.DIVIDED) {
+            vcoFreq = pllScaleFactor * getRfDividerFactor() * pfdFreq;
+        } else {
+            vcoFreq = pllScaleFactor * pfdFreq;
+        }
+        if (this.feedbackMode.getValue() == FeedbackMode.DIVIDED) {
+            outFreq = pllScaleFactor * pfdFreq;
+        } else {
+            outFreq = (pllScaleFactor * pfdFreq) / getRfDividerFactor();
+        }
+        if (auxMode.getValue() == AuxMode.FUNDAMENTAL) {
+            auxFreq = vcoFreq;
+        } else {
+            auxFreq = outFreq;
+        }
+        vcoSelFreq = pfdFreq / bandSelectDivider.getValue();
+        return new ADF4351Freq(
+                vcoFreq,
+                pfdFreq,
+                outFreq,
+                auxFreq,
+                vcoSelFreq);
     }
     
     private double getRefScaleFactor() {
