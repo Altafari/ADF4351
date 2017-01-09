@@ -28,7 +28,7 @@ public class MainForm {
         ctrlPanel.add(pllPanel);
         ctrlPanel.add(switchPanel);
         ctrlPanel.add(new DeviceBitView(SystemManager.getInstance().getConfigurator().bitState));
-        ctrlPanel.add(new SevenSegment(5, 3, null));
+        ctrlPanel.add(new SevenSegment(5, 3, "MHz"));
         pane.add(ctrlPanel, BorderLayout.LINE_START); 
     }
     

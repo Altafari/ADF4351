@@ -1,7 +1,9 @@
 package adfctrl.ui.sevenseg;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -26,9 +28,13 @@ public class SevenSegment extends JComponent {
             0b1101111 };
     
     private final static int SEG_GAP = 1;
-    private final static int SEG_WIDTH = 4;
+    private final static int SEG_WIDTH = 3;
     private final static int SEG_LENGTH = 12;
     private final static int DIGIT_GAP = 5;
+    private final static double DIGIT_SKEW = 0.06;
+    private final static int H_INSET = 3;
+    private final static int V_INSET = 2;
+    private final static int FONT_SIZE = 16;
     
     private static final boolean[] IS_VERTICAL = {
             false, true, true, false, true, true, false };
@@ -49,7 +55,9 @@ public class SevenSegment extends JComponent {
     private final int numIntPos;
     private final int numFracPos;
     private final String units;
-    private double value = .678;
+    private final int textWidth;
+    private final Font font;
+    private double value = 12345.678;
     
     public SevenSegment(int numIntPos, int numFracPos, String units) {
         this.numIntPos = numIntPos;
@@ -59,16 +67,19 @@ public class SevenSegment extends JComponent {
         for (int i = 0; i < 7; i++) {
             segments.add(buildSegment(i));
         }
+        font = new Font("Monospaced", Font.BOLD, FONT_SIZE);
+        Canvas c = new Canvas();
+        textWidth = c.getFontMetrics(font).stringWidth(units);
     }
     
     @Override
     public int getWidth() {
-        return (SEG_LENGTH + SEG_WIDTH + DIGIT_GAP) * (numIntPos + numFracPos);
+        return textWidth + (SEG_LENGTH + SEG_WIDTH + DIGIT_GAP) * (numIntPos + numFracPos) + 2 * H_INSET;
     }
     
     @Override
     public int getHeight() {
-        return SEG_LENGTH * 2 + SEG_WIDTH + DIGIT_GAP;
+        return SEG_LENGTH * 2 + SEG_WIDTH + DIGIT_GAP + 2 * V_INSET;
     }
     
     @Override
@@ -78,10 +89,12 @@ public class SevenSegment extends JComponent {
     
     @Override
     public void paintComponent(Graphics g) {
+        super.paintComponent(g);
         g.setColor(Color.black);
         Graphics2D g2d = (Graphics2D)g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.shear(-0.06, 0.0);
+        g2d.translate(H_INSET, V_INSET);
+        g2d.shear(-DIGIT_SKEW, 0.0);
         int digitStep = SEG_LENGTH + SEG_WIDTH + DIGIT_GAP;
         int[] digits = new int[numIntPos + numFracPos];
         getDigits(numIntPos, digits);
@@ -97,12 +110,15 @@ public class SevenSegment extends JComponent {
             g2d.translate(digitStep, 0);
         }
         if (numFracPos > 0) {
-            g2d.fillOval(-SEG_WIDTH, SEG_LENGTH * 2, SEG_WIDTH, SEG_WIDTH);
+            g2d.fillOval(-(SEG_WIDTH + DIGIT_GAP) / 2, SEG_LENGTH * 2, SEG_WIDTH, SEG_WIDTH);
         }
         for (int i = 0; i < numFracPos; i++) {            
             drawDigit(digits[i + numIntPos], g);
             g2d.translate(digitStep, 0);
         }
+        g2d.shear(DIGIT_SKEW, 0);
+        g2d.setFont(font);
+        g2d.drawString(units, 0, SEG_LENGTH * 2 + SEG_WIDTH);
     }
     
     private Polygon buildSegment(int idx) {
@@ -159,5 +175,8 @@ public class SevenSegment extends JComponent {
             rad /= 10; 
         }
         digits[digits.length - 1] = (int) Math.round(val / rad);
+        if (digits[0] > 9 || digits[0] < 0) {
+            throw new IllegalArgumentException("7-segment display argument is out of range");
+        }
     }
 }
