@@ -57,6 +57,7 @@ public class ADF4351Configurator {
     public final Observable<Integer> cpCurrent;
     
     public final Observable<List<Integer>> bitState;
+    public final Observable<ADF4351Freq> deviceFreq;
     
     
     private ADF4351Proxy device;
@@ -130,11 +131,14 @@ public class ADF4351Configurator {
         cpCurrent.addObserver((s) -> device.setCpCurrent(s));
         
         bitState = new Observable<List<Integer>>();
+        
+        deviceFreq = new Observable<ADF4351Freq>();
     }
     
     private void onConfigChanged() {
         // TODO: HW config update hook
         bitState.updateValueAndNotify(device.getBitState());
+        deviceFreq.setValue(getFreq());
     }
     
     public void setSynthMode(SynthMode mode) {
@@ -197,7 +201,7 @@ public class ADF4351Configurator {
         throw new IllegalArgumentException("Not a member of the configurator instance");
     }
     
-    public ADF4351Freq getFreq() {
+    private ADF4351Freq getFreq() {
         double pllScaleFactor;        
         double vcoFreq;
         double pfdFreq;

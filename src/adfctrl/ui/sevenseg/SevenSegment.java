@@ -33,7 +33,7 @@ public class SevenSegment extends JComponent {
     private final static int DIGIT_GAP = 5;
     private final static double DIGIT_SKEW = 0.06;
     private final static int H_INSET = 3;
-    private final static int V_INSET = 2;
+    private final static int V_INSET = 0;
     private final static int FONT_SIZE = 16;
     
     private static final boolean[] IS_VERTICAL = {
@@ -57,7 +57,7 @@ public class SevenSegment extends JComponent {
     private final String units;
     private final int textWidth;
     private final Font font;
-    private double value = 12345.678;
+    private double value;
     
     public SevenSegment(int numIntPos, int numFracPos, String units) {
         this.numIntPos = numIntPos;
@@ -70,6 +70,11 @@ public class SevenSegment extends JComponent {
         font = new Font("Monospaced", Font.BOLD, FONT_SIZE);
         Canvas c = new Canvas();
         textWidth = c.getFontMetrics(font).stringWidth(units);
+    }
+    
+    public void updateValue(double val) {
+        value = val;
+        this.repaint();
     }
     
     @Override
@@ -176,7 +181,10 @@ public class SevenSegment extends JComponent {
         }
         digits[digits.length - 1] = (int) Math.round(val / rad);
         if (digits[0] > 9 || digits[0] < 0) {
-            throw new IllegalArgumentException("7-segment display argument is out of range");
+            //throw new IllegalArgumentException("7-segment display argument is out of range");
+            for (int i = 0; i < digits.length; i++) {
+                digits[i] = 9;
+            }
         }
     }
 }
