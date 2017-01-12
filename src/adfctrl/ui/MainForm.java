@@ -27,9 +27,9 @@ public class MainForm {
         ctrlPanel.add(pllPanel);
         ctrlPanel.add(switchPanel);
         ctrlPanel.add(new DeviceBitView(SystemManager.getInstance().getConfigurator().bitState));
-        FreqDisplayPanel fPanel = new FreqDisplayPanel();
-        SystemManager.getInstance().getConfigurator().deviceFreq.addObserver(fPanel);
-        ctrlPanel.add(fPanel);
+        ReferenceControlPanel rPanel = new ReferenceControlPanel();
+        SystemManager.getInstance().getConfigurator().deviceFreq.addObserver(rPanel);
+        ctrlPanel.add(rPanel);
         pane.add(ctrlPanel, BorderLayout.LINE_START); 
     }
     

@@ -47,6 +47,10 @@ public abstract class LabeledNumericField<T> extends BorderedModelView<T> implem
             model.updateValueAndNotify(null);
         }
     }
+
+    public void setEditable(boolean b) {
+        field.setEditable(b);
+    }
     
     protected abstract T parseValue(String val);
 }

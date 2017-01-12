@@ -16,11 +16,13 @@ public class BorderedTitledPanel extends JPanel {
 
     public BorderedTitledPanel(String title) {
         setCustomLayout();
-        this.setBorder(BorderFactory.createCompoundBorder(
-        		BorderFactory.createTitledBorder(
-        				BorderFactory.createLineBorder(Color.gray), title),
-        		BorderFactory.createEmptyBorder(BORDER_PADDING, BORDER_PADDING,
-                        BORDER_PADDING, BORDER_PADDING)));
+        if (title != null) {
+            this.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createTitledBorder(
+                            BorderFactory.createLineBorder(Color.gray), title),
+                    BorderFactory.createEmptyBorder(BORDER_PADDING, BORDER_PADDING,
+                            BORDER_PADDING, BORDER_PADDING)));
+        }
     }
     
     protected void setCustomLayout() {
