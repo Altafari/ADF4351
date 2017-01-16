@@ -1,35 +1,23 @@
 package adfctrl.utils;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-public class Observable<T> {
+public class Observable<T> extends ObservableCore<T> {
     
     private T value;
-    private final Set<IObserver<T>> observers;    
     
     public Observable() {
-        observers = new LinkedHashSet<IObserver<T>>();
+        super();
         value = null;
     }
     
     public Observable(T val) {
-        observers = new LinkedHashSet<IObserver<T>>();
+        super();
         value = val;
     }
-    
-    public boolean addObserver(IObserver<T> obs) {
-        return observers.add(obs);
-    }
-    
-    public boolean removeObserver(IObserver<T> obs) {
-        return observers.remove(obs);
-    }
-    
+
     public boolean setValue(T val) {
         if (value != val) {
             value = val;
-            notifyObservers();
+            notifyObservers(value);
             return true;
         }
         return false;
@@ -39,16 +27,11 @@ public class Observable<T> {
         if (val != null) {
             value = val;
         }
-        notifyObservers();
+        notifyObservers(value);
     }
     
+    @Override
     public T getValue() {
         return value;
-    }
-    
-    protected void notifyObservers() {
-        for(IObserver<T> obs : observers) {
-            obs.notifyChanged(value);
-        }
-    }
+    }    
 }

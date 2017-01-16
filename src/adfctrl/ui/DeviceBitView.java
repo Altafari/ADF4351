@@ -10,8 +10,8 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 
+import adfctrl.utils.IObservable;
 import adfctrl.utils.IObserver;
-import adfctrl.utils.Observable;
 
 public class DeviceBitView extends BorderedTitledPanel implements IObserver<List<Integer>>{
 
@@ -100,7 +100,7 @@ public class DeviceBitView extends BorderedTitledPanel implements IObserver<List
 
     private List<BitViewRow> rows;
     
-    public DeviceBitView(Observable<List<Integer>> model) {        
+    public DeviceBitView(IObservable<List<Integer>> model) {        
         super("Device bit state");
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         rows = new ArrayList<BitViewRow>(N_ROWS);

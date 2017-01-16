@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import adfctrl.icmodel.ADF4351Proxy.*;
+import adfctrl.utils.IObservable;
 import adfctrl.utils.Observable;
 
 public class ADF4351Configurator {
@@ -24,12 +25,7 @@ public class ADF4351Configurator {
         
         public CustomObservable(T val) {
             super(val);
-        }
-        
-        @Override
-        protected void notifyObservers() {
-            super.notifyObservers();
-            ADF4351Configurator.this.onConfigChanged();
+            addObserver((s) -> ADF4351Configurator.this.onConfigChanged());
         }
     }
 
@@ -173,7 +169,7 @@ public class ADF4351Configurator {
         }
     }
    
-    public <T> Predicate<T> getValidator(Observable<T> val) {
+    public <T> Predicate<T> getValidator(IObservable<T> val) {
         if (val == referenceFrequency) {
             return (s) -> (Double)s >= 0.0 && (Double)s <= 250.0E6;
         }
@@ -214,7 +210,7 @@ public class ADF4351Configurator {
         } else {
             pllScaleFactor = intValue.getValue() + (fracValue.getValue() / modValue.getValue());
         }
-        pfdFreq = getRefScaleFactor() * referenceFrequency.getValue() / rCounter.getValue();
+        pfdFreq = getPfdFrequency();
         if (this.feedbackMode.getValue() == FeedbackMode.DIVIDED) {
             vcoFreq = pllScaleFactor * getRfDividerFactor() * pfdFreq;
         } else {
@@ -239,16 +235,24 @@ public class ADF4351Configurator {
                 vcoSelFreq);
     }
     
-    private double getRefScaleFactor() {
+    
+    
+    private double getPfdFrequency() {
+        double scale;
         switch (referenceMode.getValue()) {
         case DIV2:
-            return 0.5;
+            scale =  0.5;
+            break;
         case NORM:
-            return 1.0;
+            scale = 1.0;
+            break;
         case X2:
-            return 2.0;
+            scale = 2.0;
+            break;
+        default:
+            throw new IllegalArgumentException("Illegal internal state");
         }
-        throw new IllegalArgumentException("Illegal internal state");
+        return scale * referenceFrequency.getValue() / rCounter.getValue();
     }
     
     private double getRfDividerFactor() {
@@ -269,5 +273,11 @@ public class ADF4351Configurator {
             return 64.0;
         }
         throw new IllegalArgumentException("Illegal internal state");
+    }
+    
+    private int computeBandSelectDivider() {
+        int divider = (int) Math.round(getPfdFrequency() / 125.0E3);
+        divider = Math.max(1, Math.min(255, divider));  // TODO: use named constants
+        return divider;
     }
 }

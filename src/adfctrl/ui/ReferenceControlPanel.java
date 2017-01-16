@@ -3,7 +3,6 @@ package adfctrl.ui;
 import java.awt.FlowLayout;
 import java.util.Arrays;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
