@@ -1,6 +1,6 @@
 package adfctrl.utils;
 
-public class Observable<T> extends ObservableCore<T> {
+public class Observable<T> extends ObservableCore<T> implements IValueReceiver<T> {
     
     private T value;
     
@@ -14,22 +14,12 @@ public class Observable<T> extends ObservableCore<T> {
         value = val;
     }
 
-    public boolean setValue(T val) {
-        if (value != val) {
-            value = val;
-            notifyObservers(value);
-            return true;
-        }
-        return false;
+    @Override
+    public void setValue(T val) {
+        value = val;
+        notifyObservers(value);            
     }
-    
-    public void updateValueAndNotify(T val) {
-        if (val != null) {
-            value = val;
-        }
-        notifyObservers(value);
-    }
-    
+
     @Override
     public T getValue() {
         return value;

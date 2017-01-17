@@ -133,7 +133,7 @@ public class ADF4351Configurator {
     
     private void onConfigChanged() {
         // TODO: HW config update hook
-        bitState.updateValueAndNotify(device.getBitState());
+        bitState.setValue(device.getBitState());
         deviceFreq.setValue(getFreq());
     }
     
