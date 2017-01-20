@@ -21,7 +21,8 @@ public abstract class LabeledNumericField<T> extends BorderedModelView<T> implem
     public LabeledNumericField(String name, int size, Observable<T> model, Predicate<T> validator) {
     	super(name);
         this.validator = validator;
-        setModel(model);
+        setSource(model);
+        setSink(model);
         field = new JTextField(size);
         field.addActionListener(this);
         this.add(field);
@@ -34,17 +35,14 @@ public abstract class LabeledNumericField<T> extends BorderedModelView<T> implem
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (model == null) {
-            return;
-        }
         T val = null;
         try {
             val = this.parseValue(field.getText());
         } catch (Exception ex) { }
         if (val != null && validator.test(val)) {
-            model.setValue(val);
+            sink.notifyChanged(val);
         } else {
-            model.setValue(model.getValue());;
+            notifyChanged(source.getValue());;
         }
     }
 

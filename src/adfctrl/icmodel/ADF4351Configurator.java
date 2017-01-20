@@ -25,7 +25,13 @@ public class ADF4351Configurator {
         
         public CustomObservable(T val) {
             super(val);
-            addObserver((s) -> ADF4351Configurator.this.onConfigChanged());
+        }
+        
+        @Override
+        public void notifyChanged(T val) {
+            value = val;
+            notifyObservers(value);
+            ADF4351Configurator.this.onConfigChanged();
         }
     }
 
@@ -133,8 +139,8 @@ public class ADF4351Configurator {
     
     private void onConfigChanged() {
         // TODO: HW config update hook
-        bitState.setValue(device.getBitState());
-        deviceFreq.setValue(getFreq());
+        bitState.notifyChanged(device.getBitState());
+        deviceFreq.notifyChanged(getFreq());
     }
     
     public void setSynthMode(SynthMode mode) {

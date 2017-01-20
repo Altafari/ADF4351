@@ -45,7 +45,8 @@ public class LabeledSliderSwitch<T> extends BorderedModelView<T> implements IObs
         slider.setPreferredSize(new Dimension(sliderWidth, maxHeight * states.size()));
         slider.addChangeListener(this);
         this.add(slider);
-        this.setModel(model);
+        this.setSource(model);
+        this.setSink(model);
     }
     
     @Override
@@ -64,6 +65,6 @@ public class LabeledSliderSwitch<T> extends BorderedModelView<T> implements IObs
 
     @Override
     public void stateChanged(ChangeEvent e) {
-        model.setValue(states.get(slider.getValue()));
+        sink.notifyChanged(states.get(slider.getValue()));
     }
 }

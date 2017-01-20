@@ -1,8 +1,8 @@
 package adfctrl.utils;
 
-public class Observable<T> extends ObservableCore<T> implements IValueReceiver<T> {
+public class Observable<T> extends ObservableCore<T> implements IObserver<T> {
     
-    private T value;
+    protected T value;
     
     public Observable() {
         super();
@@ -15,7 +15,7 @@ public class Observable<T> extends ObservableCore<T> implements IValueReceiver<T
     }
 
     @Override
-    public void setValue(T val) {
+    public void notifyChanged(T val) {
         value = val;
         notifyObservers(value);            
     }

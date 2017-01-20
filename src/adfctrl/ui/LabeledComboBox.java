@@ -23,7 +23,8 @@ public class LabeledComboBox<T> extends BorderedModelView<T> implements IObserve
 		super(name);
 		combo = new JComboBox<String>();
 		combo.addActionListener(this);
-		setModel(model);
+		setSource(model);
+		setSink(model);
 		this.states = states;
 		for (String s : labels) {
 			combo.addItem(s);	
@@ -33,7 +34,7 @@ public class LabeledComboBox<T> extends BorderedModelView<T> implements IObserve
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		model.setValue(states.get(combo.getSelectedIndex()));
+		sink.notifyChanged(states.get(combo.getSelectedIndex()));
 	}
 
 	@Override
@@ -44,5 +45,4 @@ public class LabeledComboBox<T> extends BorderedModelView<T> implements IObserve
 		}
 		combo.setSelectedIndex(idx);
 	}
-
 }
