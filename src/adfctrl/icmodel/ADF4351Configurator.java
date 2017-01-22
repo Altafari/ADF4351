@@ -31,8 +31,7 @@ public class ADF4351Configurator {
         
         @Override
         public void notifyChanged(T val) {
-            value = val;
-            notifyObservers(value);
+            super.notifyChanged(val);
             ADF4351Configurator.this.onConfigChanged();
         }
     }
@@ -127,7 +126,7 @@ public class ADF4351Configurator {
         bandSelectDivider.addObserver((s) -> device.setBandSelectDivider(s));
         
         bandSelectDividerField = new Observable<Integer>(device.getBandSelectDivider());
-        bandSelectAutoSwitch = new  Observable<Boolean>(false);
+        bandSelectAutoSwitch = new  Observable<Boolean>(true);
         
         bandSelectClockMode = new CustomObservable<BandSelect>(device.getBandSelectClockMode());
         bandSelectClockMode.addObserver((s) -> device.setBandSelectClockMode(s));
@@ -149,10 +148,11 @@ public class ADF4351Configurator {
                 bandSelectAutoSwitch, bandSelectClockCalc, bandSelectDividerField);
         
         bandSelectDividerAutoSwitch.addObserver(bandSelectDivider);
-        bandSelectAutoSwitch.addObserver((s) -> {
-            if(s) bandSelectDividerField.notifyChanged(bandSelectDivider.getValue());});
-        synthMode.notifyChanged(synthMode.getValue());
-        referenceMode.notifyChanged(referenceMode.getValue());
+        bandSelectDividerAutoSwitch.addObserver((s) -> {
+            if (bandSelectAutoSwitch.getValue()) bandSelectDividerField.notifyChanged(s);});
+
+        synthMode.notifyChanged(null);
+        referenceMode.notifyChanged(null);
     }
     
     private void onConfigChanged() {

@@ -43,7 +43,7 @@ public abstract class LabeledNumericField<T> extends BorderedModelView<T> implem
         if (val != null && validator.test(val)) {
             sink.notifyChanged(val);
         } else {
-            notifyChanged(source.getValue());;
+            notifyChanged(source.getValue());
         }
     }
 

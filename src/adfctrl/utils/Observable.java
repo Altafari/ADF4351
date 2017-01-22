@@ -16,7 +16,9 @@ public class Observable<T> extends ObservableCore<T> implements IObserver<T> {
 
     @Override
     public void notifyChanged(T val) {
-        value = val;
+        if (val != null) {
+            value = val;
+        }
         notifyObservers(value);            
     }
 

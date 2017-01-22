@@ -11,8 +11,8 @@ public class SwitchCombiner<T> extends ObservableCore<T> {
         this.x = x;
         this.y = y;
         selector.addObserver((s) -> notifyObservers(s? x.getValue() : y.getValue()));
-        x.addObserver((s) -> notifyObservers(selector.getValue()? s : y.getValue()));
-        y.addObserver((s) -> notifyObservers(selector.getValue()? x.getValue() : s));
+        x.addObserver((s) -> {if (selector.getValue()) notifyObservers(s);});
+        y.addObserver((s) -> {if (!selector.getValue()) notifyObservers(s);});
     }
 
     @Override
