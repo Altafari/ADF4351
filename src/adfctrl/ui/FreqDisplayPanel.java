@@ -3,9 +3,10 @@ package adfctrl.ui;
 import javax.swing.BoxLayout;
 
 import adfctrl.icmodel.ADF4351Freq;
+import adfctrl.system.SystemManager;
 import adfctrl.ui.sevenseg.LabeledSevenSegment;
 
-public class FreqDisplayPanel extends BorderedModelView<ADF4351Freq> {
+public class FreqDisplayPanel extends BorderedTitledPanel {
 
     /**
      * 
@@ -31,14 +32,11 @@ public class FreqDisplayPanel extends BorderedModelView<ADF4351Freq> {
         this.add(outFreq);
         this.add(auxFreq);
         this.add(vcoSelFreq);
-    }
-
-    @Override
-    public void notifyChanged(ADF4351Freq newVal) {
-        vcoFreq.notifyChanged(newVal.vcoFreq);
-        pfdFreq.notifyChanged(newVal.pfdFreq);
-        outFreq.notifyChanged(newVal.outFreq);
-        auxFreq.notifyChanged(newVal.auxFreq);
-        vcoSelFreq.notifyChanged(newVal.vcoSelFreq);       
+        ADF4351Freq freq = SystemManager.getInstance().getConfigurator().deviceFreq;
+        freq.vcoFreq.addObserver(vcoFreq);
+        freq.pfdFreq.addObserver(pfdFreq);
+        freq.outFreq.addObserver(outFreq);
+        freq.auxFreq.addObserver(auxFreq);
+        freq.vcoBandSelFreq.addObserver(vcoSelFreq);
     }
 }

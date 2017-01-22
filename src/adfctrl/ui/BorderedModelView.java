@@ -2,7 +2,6 @@ package adfctrl.ui;
 
 import adfctrl.utils.IObservable;
 import adfctrl.utils.IObserver;
-import adfctrl.utils.Observable;
 
 public abstract class BorderedModelView<T> extends BorderedTitledPanel implements IObserver<T> {
 

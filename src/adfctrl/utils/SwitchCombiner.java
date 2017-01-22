@@ -18,6 +18,5 @@ public class SwitchCombiner<T> extends ObservableCore<T> {
     @Override
     public T getValue() {
         return selector.getValue()? x.getValue() : y.getValue();
-    }
-    
+    }    
 }

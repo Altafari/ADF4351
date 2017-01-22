@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import adfctrl.icmodel.ADF4351Proxy.*;
+import adfctrl.utils.FunctionMapper;
 import adfctrl.utils.IObservable;
 import adfctrl.utils.Observable;
+import adfctrl.utils.SwitchCombiner;
 
 public class ADF4351Configurator {
     
@@ -53,14 +55,15 @@ public class ADF4351Configurator {
     public final Observable<RfDivider> rfDividerMode;
     public final Observable<Integer> clockDivider;
     public final Observable<ClockDividerMode> clockDivMode;
+    public final Observable<Boolean> bandSelectAutoSwitch;
+    public final Observable<Integer> bandSelectDividerField;
     public final Observable<Integer> bandSelectDivider;
     public final Observable<BandSelect> bandSelectClockMode;
     public final Observable<LockDetectPin> lockDetectPin;
     public final Observable<Integer> cpCurrent;
     
     public final Observable<List<Integer>> bitState;
-    public final Observable<ADF4351Freq> deviceFreq;
-    
+    public final ADF4351Freq deviceFreq;
     
     private ADF4351Proxy device;
     
@@ -118,10 +121,13 @@ public class ADF4351Configurator {
         clockDivider.addObserver((s) -> device.setClockDivider(s));
         
         clockDivMode = new CustomObservable<ClockDividerMode>(device.getClockDividerMode());
-        clockDivMode.addObserver((s) -> device.setClockDividerMode(s));
+        clockDivMode.addObserver((s) -> device.setClockDividerMode(s));        
         
         bandSelectDivider = new CustomObservable<Integer>(device.getBandSelectDivider());
         bandSelectDivider.addObserver((s) -> device.setBandSelectDivider(s));
+        
+        bandSelectDividerField = new Observable<Integer>(device.getBandSelectDivider());
+        bandSelectAutoSwitch = new  Observable<Boolean>(false);
         
         bandSelectClockMode = new CustomObservable<BandSelect>(device.getBandSelectClockMode());
         bandSelectClockMode.addObserver((s) -> device.setBandSelectClockMode(s));
@@ -132,15 +138,24 @@ public class ADF4351Configurator {
         cpCurrent = new CustomObservable<Integer>(device.getCpCurrent());
         cpCurrent.addObserver((s) -> device.setCpCurrent(s));
         
-        bitState = new Observable<List<Integer>>();
+        bitState = new Observable<List<Integer>>();        
+
+        deviceFreq = new ADF4351Freq(this);
         
-        deviceFreq = new Observable<ADF4351Freq>();
+        FunctionMapper<Double, Integer> bandSelectClockCalc =
+                new FunctionMapper<Double, Integer>(deviceFreq.pfdFreq, (s) -> computeBandSelectDivider(s));
+        
+        SwitchCombiner<Integer> bandSelectDividerAutoSwitch = new SwitchCombiner<Integer>(
+                bandSelectAutoSwitch, bandSelectClockCalc, bandSelectDividerField);
+        
+        bandSelectDividerAutoSwitch.addObserver(bandSelectDivider);
+        bandSelectAutoSwitch.addObserver((s) -> {
+            if(s) bandSelectDividerField.notifyChanged(bandSelectDivider.getValue());});
     }
     
     private void onConfigChanged() {
         // TODO: HW config update hook
         bitState.notifyChanged(device.getBitState());
-        deviceFreq.notifyChanged(getFreq());
     }
     
     public void setSynthMode(SynthMode mode) {
@@ -197,92 +212,14 @@ public class ADF4351Configurator {
         if (val == rCounter) {
             return (s) -> (Integer)s >= 1 && (Integer)s <= 1023;
         }
-        if (val == bandSelectDivider) {
+        if (val == bandSelectDividerField) {
             return (s) -> (Integer)s >= 1 && (Integer)s <= 255;
         }
         throw new IllegalArgumentException("Not a member of the configurator instance");
     }
     
-    private ADF4351Freq getFreq() {
-        double pllScaleFactor;        
-        double vcoFreq;
-        double pfdFreq;
-        double outFreq;
-        double auxFreq;
-        double vcoSelFreq;
-
-        if (this.synthMode.getValue() == SynthMode.INTEGER) {
-            pllScaleFactor = intValue.getValue();
-        } else {
-            pllScaleFactor = intValue.getValue() + (fracValue.getValue() / modValue.getValue());
-        }
-        pfdFreq = getPfdFrequency();
-        if (this.feedbackMode.getValue() == FeedbackMode.DIVIDED) {
-            vcoFreq = pllScaleFactor * getRfDividerFactor() * pfdFreq;
-        } else {
-            vcoFreq = pllScaleFactor * pfdFreq;
-        }
-        if (this.feedbackMode.getValue() == FeedbackMode.DIVIDED) {
-            outFreq = pllScaleFactor * pfdFreq;
-        } else {
-            outFreq = (pllScaleFactor * pfdFreq) / getRfDividerFactor();
-        }
-        if (auxMode.getValue() == AuxMode.FUNDAMENTAL) {
-            auxFreq = vcoFreq;
-        } else {
-            auxFreq = outFreq;
-        }
-        vcoSelFreq = pfdFreq / bandSelectDivider.getValue();
-        return new ADF4351Freq(
-                vcoFreq,
-                pfdFreq,
-                outFreq,
-                auxFreq,
-                vcoSelFreq);
-    }
-    
-    
-    
-    private double getPfdFrequency() {
-        double scale;
-        switch (referenceMode.getValue()) {
-        case DIV2:
-            scale =  0.5;
-            break;
-        case NORM:
-            scale = 1.0;
-            break;
-        case X2:
-            scale = 2.0;
-            break;
-        default:
-            throw new IllegalArgumentException("Illegal internal state");
-        }
-        return scale * referenceFrequency.getValue() / rCounter.getValue();
-    }
-    
-    private double getRfDividerFactor() {
-        switch (rfDividerMode.getValue()) {
-        case DIV_1:
-            return 1.0;
-        case DIV_2:
-            return 2.0;
-        case DIV_4:
-            return 4.0;
-        case DIV_8:
-            return 8.0;
-        case DIV_16:
-            return 16.0;
-        case DIV_32:
-            return 32.0;
-        case DIV_64:
-            return 64.0;
-        }
-        throw new IllegalArgumentException("Illegal internal state");
-    }
-    
-    private int computeBandSelectDivider() {
-        int divider = (int) Math.round(getPfdFrequency() / 125.0E3);
+    private static int computeBandSelectDivider(Double pfdFreq) {
+        int divider = (int) Math.round(pfdFreq / 125.0E3);
         divider = Math.max(1, Math.min(255, divider));  // TODO: use named constants
         return divider;
     }

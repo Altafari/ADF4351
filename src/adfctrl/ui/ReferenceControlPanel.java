@@ -9,11 +9,10 @@ import javax.swing.JPanel;
 
 import adfctrl.icmodel.ADF4351Configurator;
 import adfctrl.icmodel.ADF4351Configurator.ReferenceMode;
-import adfctrl.icmodel.ADF4351Freq;
 import adfctrl.system.SystemManager;
 import adfctrl.ui.sevenseg.LabeledSevenSegment;
 
-public class ReferenceControlPanel extends BorderedModelView<ADF4351Freq> {
+public class ReferenceControlPanel extends BorderedTitledPanel {
 
     /**
      * 
@@ -55,9 +54,11 @@ public class ReferenceControlPanel extends BorderedModelView<ADF4351Freq> {
         bSelDiv = new LabeledIntegerField(
                 null,
                 8,
-                config.bandSelectDivider,
-                config.getValidator(config.bandSelectDivider));
-        bSelAuto = new JCheckBox("Auto");;
+                config.bandSelectDividerField,
+                config.getValidator(config.bandSelectDividerField));
+        bSelDiv.setSource(config.bandSelectDivider);
+        bSelAuto = new JCheckBox("Auto");
+        bSelAuto.addActionListener((s) -> config.bandSelectAutoSwitch.notifyChanged(bSelAuto.isSelected()));
         vcoSelFreq = new LabeledSevenSegment(
                 "VCO selection frequency",
                 5,
@@ -76,7 +77,6 @@ public class ReferenceControlPanel extends BorderedModelView<ADF4351Freq> {
             }
         };
         bSelRow.add(bSelDiv);
-        bSelDiv.setEditable(false);
         bSelRow.add(bSelAuto);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         numFields.add(refFreq);
@@ -87,13 +87,8 @@ public class ReferenceControlPanel extends BorderedModelView<ADF4351Freq> {
         this.add(pfdFreq);
         this.add(bSelRow);
         this.add(vcoSelFreq);
+        config.deviceFreq.pfdFreq.addObserver(pfdFreq);
+        config.deviceFreq.vcoBandSelFreq.addObserver(vcoSelFreq);
+        config.bandSelectAutoSwitch.addObserver((s) -> bSelDiv.setEditable(!s));
     }
-    
-    @Override
-    public void notifyChanged(ADF4351Freq newVal) {
-        pfdFreq.notifyChanged(newVal.pfdFreq);
-        vcoSelFreq.notifyChanged(newVal.vcoSelFreq);
-        
-    }
-
 }

@@ -28,7 +28,6 @@ public class MainForm {
         ctrlPanel.add(switchPanel);
         ctrlPanel.add(new DeviceBitView(SystemManager.getInstance().getConfigurator().bitState));
         ReferenceControlPanel rPanel = new ReferenceControlPanel();
-        SystemManager.getInstance().getConfigurator().deviceFreq.addObserver(rPanel);
         ctrlPanel.add(rPanel);
         pane.add(ctrlPanel, BorderLayout.LINE_START); 
     }
