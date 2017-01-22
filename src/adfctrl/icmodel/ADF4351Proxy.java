@@ -130,7 +130,7 @@ public class ADF4351Proxy {
     
     private final static BitArray CP_CURRENT_BITS = new BitArray(4, 9);
     
-    public final static int MIN_R_COUNTER = 0;
+    public final static int MIN_R_COUNTER = 1;
     public final static int MAX_R_COUNTER = 4095;
     
     private final static BitArray R_COUNTER_BITS = new BitArray(10, 14);
@@ -559,7 +559,7 @@ public class ADF4351Proxy {
             buff.putBit(this.doubleBuffer, 13);
             buff.putArgument(this.rCounter, R_COUNTER_BITS);
             buff.putBit(this.refDivBy2, 24);
-            buff.putBit(this.refDoubler, 24);
+            buff.putBit(this.refDoubler, 25);
             buff.putArgument(this.muxOut.ordinal(), MUX_OUT_BITS);
             buff.putArgument(this.noiseMode.ordinal(), NOISE_MODE_BITS);
             break;

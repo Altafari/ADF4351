@@ -26,6 +26,7 @@ public abstract class LabeledNumericField<T> extends BorderedModelView<T> implem
         field = new JTextField(size);
         field.addActionListener(this);
         this.add(field);
+        notifyChanged(source.getValue());
     }
     
     @Override

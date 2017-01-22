@@ -47,6 +47,7 @@ public class LabeledSliderSwitch<T> extends BorderedModelView<T> implements IObs
         this.add(slider);
         this.setSource(model);
         this.setSink(model);
+        notifyChanged(source.getValue());
     }
     
     @Override

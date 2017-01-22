@@ -181,7 +181,6 @@ public class SevenSegment extends JComponent {
         }
         digits[digits.length - 1] = (int) Math.round(val / rad);
         if (digits[0] > 9 || digits[0] < 0) {
-            //throw new IllegalArgumentException("7-segment display argument is out of range");
             for (int i = 0; i < digits.length; i++) {
                 digits[i] = 9;
             }

@@ -151,6 +151,8 @@ public class ADF4351Configurator {
         bandSelectDividerAutoSwitch.addObserver(bandSelectDivider);
         bandSelectAutoSwitch.addObserver((s) -> {
             if(s) bandSelectDividerField.notifyChanged(bandSelectDivider.getValue());});
+        synthMode.notifyChanged(synthMode.getValue());
+        referenceMode.notifyChanged(referenceMode.getValue());
     }
     
     private void onConfigChanged() {
@@ -220,7 +222,7 @@ public class ADF4351Configurator {
     
     private static int computeBandSelectDivider(Double pfdFreq) {
         int divider = (int) Math.round(pfdFreq / 125.0E3);
-        divider = Math.max(1, Math.min(255, divider));  // TODO: use named constants
+        divider = Math.max(1, Math.min(255, divider));
         return divider;
     }
 }

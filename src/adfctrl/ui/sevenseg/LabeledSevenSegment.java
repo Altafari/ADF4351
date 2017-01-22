@@ -1,6 +1,7 @@
 package adfctrl.ui.sevenseg;
 
 import adfctrl.ui.BorderedModelView;
+import adfctrl.utils.IObservable;
 
 public class LabeledSevenSegment extends BorderedModelView<Double> {
 
@@ -12,11 +13,14 @@ public class LabeledSevenSegment extends BorderedModelView<Double> {
     private final SevenSegment display;
     private final double scale;
     
-    public LabeledSevenSegment(String title, int numIntPos, int numFracPos, String units, double scale) {
+    public LabeledSevenSegment(
+            String title, IObservable<Double> source, int numIntPos, int numFracPos, String units, double scale) {
         super(title);
+        setSource(source);
         this.scale = scale;
         display = new SevenSegment(numIntPos, numFracPos, units);
-        this.add(display);
+        this.add(display);        
+        notifyChanged(source.getValue());
     }
 
     @Override

@@ -47,6 +47,7 @@ public class ReferenceControlPanel extends BorderedTitledPanel {
                 Arrays.asList("Div2", "Normal", "X2"));
         pfdFreq = new LabeledSevenSegment(
                 "PFD frequency",
+                config.deviceFreq.pfdFreq,
                 5,
                 3,
                 "kHz",
@@ -61,6 +62,7 @@ public class ReferenceControlPanel extends BorderedTitledPanel {
         bSelAuto.addActionListener((s) -> config.bandSelectAutoSwitch.notifyChanged(bSelAuto.isSelected()));
         vcoSelFreq = new LabeledSevenSegment(
                 "VCO selection frequency",
+                config.deviceFreq.vcoBandSelFreq,
                 5,
                 3,
                 "kHz",
@@ -87,8 +89,8 @@ public class ReferenceControlPanel extends BorderedTitledPanel {
         this.add(pfdFreq);
         this.add(bSelRow);
         this.add(vcoSelFreq);
-        config.deviceFreq.pfdFreq.addObserver(pfdFreq);
-        config.deviceFreq.vcoBandSelFreq.addObserver(vcoSelFreq);
         config.bandSelectAutoSwitch.addObserver((s) -> bSelDiv.setEditable(!s));
+        config.bandSelectAutoSwitch.notifyChanged(true);
+        bSelAuto.setSelected(true);        
     }
 }

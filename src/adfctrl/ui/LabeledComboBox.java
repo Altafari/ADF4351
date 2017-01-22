@@ -30,6 +30,7 @@ public class LabeledComboBox<T> extends BorderedModelView<T> implements IObserve
 			combo.addItem(s);	
 		}
 		this.add(combo);
+		notifyChanged(source.getValue());
 	}
 	
 	@Override
