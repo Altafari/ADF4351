@@ -1,7 +1,13 @@
 package adfctrl.ui;
 
+import java.awt.GridLayout;
+
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+
 import adfctrl.icmodel.ADF4351Configurator;
 import adfctrl.system.SystemManager;
+import adfctrl.ui.sevenseg.LabeledSevenSegment;
 
 public class PllPanel extends BorderedTitledPanel {
 
@@ -40,10 +46,26 @@ public class PllPanel extends BorderedTitledPanel {
 				6,
 				config.modValue,
 				config.getValidator(config.modValue));
-
-		this.add(referenceFreq);
-		this.add(integerVal);
-		this.add(fractionalVal);
-		this.add(modulusVal);
+		
+		LabeledSevenSegment vcoFreq = new LabeledSevenSegment(
+		        "VCO frequency",
+		        config.deviceFreq.vcoFreq,
+		        4,
+		        6,
+		        "MHz",
+		        1.0E-6);
+		
+		this.add(vcoFreq);
+		JPanel numFields = new JPanel();
+		numFields.setLayout(new GridLayout(2, 2));
+		numFields.add(referenceFreq);
+		numFields.add(integerVal);
+		numFields.add(fractionalVal);
+		numFields.add(modulusVal);
+		this.add(numFields);
+	}
+	@Override
+	protected void setCustomLayout(){
+	    this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 	}
 }

@@ -180,6 +180,12 @@ public class SevenSegment extends JComponent {
             rad /= 10; 
         }
         digits[digits.length - 1] = (int) Math.round(val / rad);
+        int pos = digits.length - 1;
+        while (digits[pos] == 10 && pos > 0) {
+            digits[pos] = 0;
+            pos--;
+            digits[pos]++;
+        }
         if (digits[0] > 9 || digits[0] < 0) {
             for (int i = 0; i < digits.length; i++) {
                 digits[i] = 9;
