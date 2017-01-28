@@ -1,4 +1,4 @@
-package adfctrl.ui;
+package adfctrl.ui.panels;
 
 import java.awt.FlowLayout;
 import java.util.Arrays;
@@ -10,6 +10,10 @@ import javax.swing.JPanel;
 import adfctrl.icmodel.ADF4351Configurator;
 import adfctrl.icmodel.ADF4351Configurator.ReferenceMode;
 import adfctrl.system.SystemManager;
+import adfctrl.ui.controls.BorderedTitledPanel;
+import adfctrl.ui.controls.LabeledDoubleField;
+import adfctrl.ui.controls.LabeledIntegerField;
+import adfctrl.ui.controls.LabeledSliderSwitch;
 import adfctrl.ui.sevenseg.LabeledSevenSegment;
 
 public class ReferenceControlPanel extends BorderedTitledPanel {

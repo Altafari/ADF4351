@@ -1,9 +1,10 @@
-package adfctrl.ui;
+package adfctrl.ui.panels;
 
 import javax.swing.BoxLayout;
 
 import adfctrl.icmodel.ADF4351Freq;
 import adfctrl.system.SystemManager;
+import adfctrl.ui.controls.BorderedTitledPanel;
 import adfctrl.ui.sevenseg.LabeledSevenSegment;
 
 public class FreqDisplayPanel extends BorderedTitledPanel {

@@ -1,6 +1,6 @@
 package adfctrl.ui.sevenseg;
 
-import adfctrl.ui.BorderedModelView;
+import adfctrl.ui.controls.BorderedModelView;
 import adfctrl.utils.IObservable;
 
 public class LabeledSevenSegment extends BorderedModelView<Double> {

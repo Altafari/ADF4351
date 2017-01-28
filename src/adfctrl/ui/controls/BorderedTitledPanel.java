@@ -1,4 +1,4 @@
-package adfctrl.ui;
+package adfctrl.ui.controls;
 
 import java.awt.Color;
 

@@ -1,4 +1,4 @@
-package adfctrl.ui;
+package adfctrl.ui.controls;
 
 import adfctrl.utils.IObservable;
 import adfctrl.utils.IObserver;

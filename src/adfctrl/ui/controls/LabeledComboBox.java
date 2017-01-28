@@ -1,4 +1,4 @@
-package adfctrl.ui;
+package adfctrl.ui.controls;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,13 +22,13 @@ public class LabeledComboBox<T> extends BorderedModelView<T> implements IObserve
 	public LabeledComboBox(String name, Observable<T> model, List<T> states, List<String> labels) {
 		super(name);
 		combo = new JComboBox<String>();
-		combo.addActionListener(this);
+	    this.states = states;
+	        for (String s : labels) {
+	            combo.addItem(s);   
+	        }
 		setSource(model);
 		setSink(model);
-		this.states = states;
-		for (String s : labels) {
-			combo.addItem(s);	
-		}
+		combo.addActionListener(this);
 		this.add(combo);
 		notifyChanged(source.getValue());
 	}

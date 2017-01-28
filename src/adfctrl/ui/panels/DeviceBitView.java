@@ -1,4 +1,4 @@
-package adfctrl.ui;
+package adfctrl.ui.panels;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,6 +10,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 
+import adfctrl.ui.controls.BorderedTitledPanel;
 import adfctrl.utils.IObservable;
 import adfctrl.utils.IObserver;
 
