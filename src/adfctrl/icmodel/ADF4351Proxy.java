@@ -91,7 +91,8 @@ public class ADF4351Proxy {
     
     private final static BitArray FRACTIONAL_VAL_BITS = new BitArray(12, 3);
     
-    public final static int MIN_INTEGER = 23;
+    public final static int MIN_INTEGER = 75;
+    //public final static int MIN_INTEGER = 23;
     public final static int MAX_INTEGER = 65535;
     
     private final static BitArray INTEGER_VAL_BITS = new BitArray(16, 15);
@@ -602,7 +603,7 @@ public class ADF4351Proxy {
         // Register 1
         modulusVal = MIN_MODULUS;
         phaseVal = DEFAULT_PHASE;
-        prescalerMode = PrescalerMode.MODE_4DIV5;
+        prescalerMode = PrescalerMode.MODE_8DIV9;
         phaseAdjust = false;
         // Register 2
         counterReset = false;               // Three bellow are not used now, keep false
@@ -627,9 +628,9 @@ public class ADF4351Proxy {
         bandSelectClockMode = BandSelect.LOW;   // Not used now, for low PFD freq.
         // Register 4
         outputPower = PowerMode.MODE_PLUS_2DBM;
-        rfOutEnable = false;
+        rfOutEnable = true;
         auxPower = PowerMode.MODE_PLUS_2DBM;
-        auxEnable = false;
+        auxEnable = true;
         auxMode = AuxMode.DIVIDED_OUTPUT;
         muteTillLd = false;
         vcoPowerDown = false;               // Not used now

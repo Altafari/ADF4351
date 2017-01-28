@@ -27,10 +27,11 @@ public class CheckBoxControl<T> extends JPanel implements IObserver<T>, ChangeLi
         this.model = model;
         this.onState = onState;
         this.offState = offState;
-        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        checkBox.addChangeListener(this);
+        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));        
         checkBox.setAlignmentX(CENTER_ALIGNMENT);
+        checkBox.addChangeListener(this);
         model.addObserver(this);
+        model.notifyChanged(model.getValue());
         this.add(Box.createVerticalGlue());
         this.add(checkBox);
         this.add(Box.createVerticalGlue());

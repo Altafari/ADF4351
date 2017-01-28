@@ -1,6 +1,6 @@
 package adfctrl.ui.panels;
 
-import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.util.Arrays;
 
 import javax.swing.BoxLayout;
@@ -11,9 +11,9 @@ import adfctrl.icmodel.ADF4351Configurator;
 import adfctrl.icmodel.ADF4351Configurator.ReferenceMode;
 import adfctrl.system.SystemManager;
 import adfctrl.ui.controls.BorderedTitledPanel;
+import adfctrl.ui.controls.LabeledComboBox;
 import adfctrl.ui.controls.LabeledDoubleField;
 import adfctrl.ui.controls.LabeledIntegerField;
-import adfctrl.ui.controls.LabeledSliderSwitch;
 import adfctrl.ui.sevenseg.LabeledSevenSegment;
 
 public class ReferenceControlPanel extends BorderedTitledPanel {
@@ -25,7 +25,7 @@ public class ReferenceControlPanel extends BorderedTitledPanel {
 
     private final LabeledDoubleField refFreq;
     private final LabeledIntegerField rCounter;
-    private final LabeledSliderSwitch<ReferenceMode> refMode;
+    private final LabeledComboBox<ReferenceMode> refMode;
     private final LabeledSevenSegment pfdFreq;
     private final LabeledIntegerField bSelDiv;
     private final JCheckBox bSelAuto;
@@ -44,7 +44,7 @@ public class ReferenceControlPanel extends BorderedTitledPanel {
                 8,
                 config.rCounter,
                 config.getValidator(config.rCounter));
-        refMode = new LabeledSliderSwitch<ReferenceMode>(
+        refMode = new LabeledComboBox<ReferenceMode>(
                 "Ref mode",
                 config.referenceMode,
                 Arrays.asList(ReferenceMode.DIV2, ReferenceMode.NORM, ReferenceMode.X2),
@@ -53,12 +53,12 @@ public class ReferenceControlPanel extends BorderedTitledPanel {
                 "PFD frequency",
                 config.deviceFreq.pfdFreq,
                 5,
-                3,
+                1,
                 "kHz",
                 1E-3);
         bSelDiv = new LabeledIntegerField(
                 null,
-                8,
+                3,
                 config.bandSelectDividerField,
                 config.getValidator(config.bandSelectDividerField));
         bSelDiv.setSource(config.bandSelectDivider);
@@ -67,32 +67,29 @@ public class ReferenceControlPanel extends BorderedTitledPanel {
         vcoSelFreq = new LabeledSevenSegment(
                 "VCO selection frequency",
                 config.deviceFreq.vcoBandSelFreq,
-                5,
                 3,
+                2,
                 "kHz",
                 1E-3);
-        JPanel firstRow = new JPanel();
-        firstRow.setLayout(new FlowLayout());
-        JPanel numFields = new JPanel();
-        numFields.setLayout(new BoxLayout(numFields, BoxLayout.PAGE_AXIS));
-        JPanel bSelRow = new BorderedTitledPanel("Band select divider") {
+        JPanel ctrlGroup = new JPanel();
+        ctrlGroup.setLayout(new GridLayout(2,2));
+        JPanel bSelRow = new BorderedTitledPanel("Band Fs") {
             private static final long serialVersionUID = 1L;            
             @Override
             protected void setCustomLayout() {
-                this.setLayout(new FlowLayout());                
+                this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));                
             }
         };
         bSelRow.add(bSelDiv);
         bSelRow.add(bSelAuto);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        numFields.add(refFreq);
-        numFields.add(rCounter);
-        firstRow.add(numFields);
-        firstRow.add(refMode);
-        this.add(firstRow);
+        ctrlGroup.add(refFreq);
+        ctrlGroup.add(rCounter);
+        ctrlGroup.add(refMode);
+        ctrlGroup.add(bSelRow);
         this.add(pfdFreq);
-        this.add(bSelRow);
-        this.add(vcoSelFreq);
+        this.add(ctrlGroup);
+        this.add(vcoSelFreq);        
         config.bandSelectAutoSwitch.addObserver((s) -> bSelDiv.setEditable(!s));
         config.bandSelectAutoSwitch.notifyChanged(true);
         bSelAuto.setSelected(true);        

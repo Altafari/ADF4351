@@ -83,13 +83,13 @@ public class PllPanel extends BorderedTitledPanel {
                 "1/64");
         
         rfDivider = new LabeledComboBox<RfDivider>(
-                "RF divider mode",
+                "RF divider",
                 config.rfDividerMode,
                 rfDivModes,
                 rfDivLabels);
         
         feedbackMode = new LabeledComboBox<FeedbackMode>(
-                "Feedback mode",
+                "Feedback",
                 config.feedbackMode,
                 Arrays.asList(FeedbackMode.FUNDAMENTAL, FeedbackMode.DIVIDED),
                 Arrays.asList("Fundamental", "Divided"));
@@ -111,7 +111,7 @@ public class PllPanel extends BorderedTitledPanel {
 		        "VCO frequency",
 		        config.deviceFreq.vcoFreq,
 		        4,
-		        6,
+		        3,
 		        "MHz",
 		        1.0E-6);
 		

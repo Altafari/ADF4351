@@ -1,5 +1,7 @@
 package adfctrl.ui.sevenseg;
 
+import java.awt.FlowLayout;
+
 import adfctrl.ui.controls.BorderedModelView;
 import adfctrl.utils.IObservable;
 
@@ -19,7 +21,7 @@ public class LabeledSevenSegment extends BorderedModelView<Double> {
         setSource(source);
         this.scale = scale;
         display = new SevenSegment(numIntPos, numFracPos, units);
-        this.add(display);        
+        this.add(display);
         notifyChanged(source.getValue());
     }
 
@@ -28,4 +30,12 @@ public class LabeledSevenSegment extends BorderedModelView<Double> {
         display.updateValue(newVal * scale);        
     }
 
+    @Override
+    protected void setCustomLayout() {
+        this.setLayout(new FlowLayout());
+    }
+    
+    protected int getBorderPadding() {
+        return 0;
+    }
 }

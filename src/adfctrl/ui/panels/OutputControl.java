@@ -14,8 +14,9 @@ import adfctrl.system.SystemManager;
 import adfctrl.ui.controls.BorderedTitledPanel;
 import adfctrl.ui.controls.CheckBoxControl;
 import adfctrl.ui.controls.LabeledComboBox;
+import adfctrl.ui.sevenseg.LabeledSevenSegment;
 
-public class SwitchPanel extends JPanel {
+public class OutputControl extends JPanel {
     
     /**
      * 
@@ -28,7 +29,7 @@ public class SwitchPanel extends JPanel {
     public final CheckBoxControl<Boolean> auxSwitch;
     public final LabeledComboBox<AuxMode> auxModeSwitch;
     
-    public SwitchPanel() {
+    public OutputControl() {
         
         SystemManager sysMgr = SystemManager.getInstance();
         ADF4351Configurator config = sysMgr.getConfigurator();
@@ -88,7 +89,22 @@ public class SwitchPanel extends JPanel {
         auxCol.add(auxSwitch);
         outputGroup.add(auxCol);
         outputGroup.add(outCol);
-
+        LabeledSevenSegment outFreq = new LabeledSevenSegment(
+                "Out frequency",
+                config.deviceFreq.outFreq,
+                4,
+                3,
+                "MHz",
+                1E-6);
+        LabeledSevenSegment auxFreq = new LabeledSevenSegment(
+                "Aux frequency",
+                config.deviceFreq.auxFreq,
+                4,
+                3,
+                "MHz",
+                1E-6);
+        this.add(outFreq);
+        this.add(auxFreq);
         this.add(outputGroup);
         this.add(auxModeSwitch);
     }

@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 
 import adfctrl.ui.panels.PllPanel;
 import adfctrl.ui.panels.ReferenceControlPanel;
-import adfctrl.ui.panels.SwitchPanel;
+import adfctrl.ui.panels.OutputControl;
 
 public class MainForm {
     
@@ -24,7 +24,7 @@ public class MainForm {
     private static void addComponentsToPane(Container pane) {
         JPanel ctrlPanel = new JPanel();    
         JPanel pllPanel = new PllPanel();
-        JPanel switchPanel = new SwitchPanel();
+        JPanel switchPanel = new OutputControl();
         switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.PAGE_AXIS));
         ReferenceControlPanel rPanel = new ReferenceControlPanel();
         ctrlPanel.add(rPanel);
