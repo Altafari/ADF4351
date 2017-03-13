@@ -636,7 +636,7 @@ public class ADF4351Proxy {
         vcoPowerDown = false;               // Not used now
         bandSelectDivider = MIN_BAND_SELECT_DIVIDER;
         rfDivider = RfDivider.DIV_1;
-        feedbackMode = FeedbackMode.DIVIDED;
+        feedbackMode = FeedbackMode.FUNDAMENTAL;
         // Register 5
         lockDetectPin = LockDetectPin.DIGITAL_LD;
     }

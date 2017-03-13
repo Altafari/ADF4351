@@ -92,7 +92,7 @@ public class PllPanel extends BorderedTitledPanel {
                 "Feedback",
                 config.feedbackMode,
                 Arrays.asList(FeedbackMode.FUNDAMENTAL, FeedbackMode.DIVIDED),
-                Arrays.asList("Fundamental", "Divided"));
+                Arrays.asList("Direct", "Divided"));
         
         cpCurrent = new LabeledComboBox<Integer>(
                 "CP current",
