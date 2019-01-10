@@ -17,7 +17,7 @@ import adfctrl.utils.IObservable;
 import adfctrl.utils.IObserver;
 import adfctrl.utils.Observable;
 
-public class UsbConnDaemon {
+public class UsbConnDaemon implements IObserver<byte[]> {
     
     public enum DeviceStatus {
         Disconnected,
@@ -27,21 +27,16 @@ public class UsbConnDaemon {
     }
     
     public final Observable<DeviceStatus> deviceStatus;
-    private final Context context;
+    
     private Device device;
+    private final Context context;
     private final DeviceHandle dHandle;
+    private final int vid;
+    private final int pid;
     private final Timer scanTimer;
     private final int TIMEOUT = 1000;
     private final long SCAN_INTERVAL = 100;
-    private final int VENDOR_ID = 0x856;
-    private final int PRODUCT_ID = 0x5566;
     
-    private class BinaryConfigObserver implements IObserver<byte[]> {
-        @Override
-        public void notifyChanged(byte[] newVal) {
-            onConfigChange(newVal);
-        }        
-    };
     private class ShutdownHookThread extends Thread {
         @Override
         public void run() {
@@ -49,13 +44,15 @@ public class UsbConnDaemon {
         }
     }
     
-    public UsbConnDaemon() {
+    public UsbConnDaemon(int vendorId, int productId) {
+        vid = vendorId;
+        pid = productId;
         context = new Context();
         dHandle = new DeviceHandle();
         int result = LibUsb.init(context);
         if (result != LibUsb.SUCCESS) throw new LibUsbException("Unable to initialize libusb.", result);
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread());
-        deviceStatus = new Observable<DeviceStatus>();
+        deviceStatus = new Observable<DeviceStatus>(DeviceStatus.Disconnected);
         scanTimer = new Timer(true);
         TimerTask tTask = new TimerTask() {
             @Override
@@ -67,6 +64,11 @@ public class UsbConnDaemon {
         scanTimer.scheduleAtFixedRate(tTask, SCAN_INTERVAL, SCAN_INTERVAL);
     }
     
+    @Override
+    public void notifyChanged(byte[] newVal) {
+        onConfigChange(newVal);
+    }
+    
     private void onConfigChange(byte[] config) {
         if (device == null) return;
         if (deviceStatus.getValue() != DeviceStatus.Initialized) return;
@@ -74,7 +76,8 @@ public class UsbConnDaemon {
             writeConfigToDevice(config);
         }
         catch (Exception e) {
-            
+            System.out.println("Error occured during communication with device");
+            closeDevice();
         }
         
     }
@@ -95,26 +98,15 @@ public class UsbConnDaemon {
     private void onTimer() {
         switch(deviceStatus.getValue()) {
         case Disconnected:
-            Device dev = acquireDevice();
-            if (dev != null) {
-                device = dev;
-                deviceStatus.notifyChanged(DeviceStatus.Connected);
-            }
+            acquireDevice();
             break;
         case Connected:
-            boolean success = openDevice();
-            if (success) {
-                deviceStatus.notifyChanged(DeviceStatus.Initialized);
-            } else {
-                closeDevice();
-                deviceStatus.notifyChanged(DeviceStatus.Disconnected);
-            }
+            openDevice();
             break;
         case Initialized:
             break;
         case TransferFailed:
             closeDevice();
-            deviceStatus.notifyChanged(DeviceStatus.Disconnected);
             break;
         }
     }
@@ -125,27 +117,68 @@ public class UsbConnDaemon {
         {
             int result = LibUsb.getDeviceList(context, list);
             if (result < 0) throw new LibUsbException("Unable to get device list", result);
-            for (Device device: list)
-            {
+            for (Device dev: list) {
                 DeviceDescriptor descriptor = new DeviceDescriptor();
-                result = LibUsb.getDeviceDescriptor(device, descriptor);
+                result = LibUsb.getDeviceDescriptor(dev, descriptor);
                 if (result != LibUsb.SUCCESS) throw new LibUsbException("Unable to read device descriptor", result);
-                if (descriptor.idVendor() == VENDOR_ID && descriptor.idProduct() == PRODUCT_ID) return device;
+                if (descriptor.idVendor() == vid && descriptor.idProduct() == pid) {
+                    LibUsb.refDevice(dev);
+                    if (dev != null) {
+                        device = dev;
+                        deviceStatus.notifyChanged(DeviceStatus.Connected);
+                    }
+                }
             }
         }
-        finally
-        {
+        finally {
             LibUsb.freeDeviceList(list, true);
         }
         return null;
     }
     
-    private boolean openDevice() {
+    private void openDevice() {
         int res = LibUsb.open(device, dHandle);
-        return res == LibUsb.SUCCESS;
+        if (res != LibUsb.SUCCESS) return;
+        res = LibUsb.claimInterface(dHandle, 0);
+        if (res == LibUsb.SUCCESS) {
+            deviceStatus.notifyChanged(DeviceStatus.Initialized);
+        } else {
+            closeDevice();
+        }
     }
     
     private void closeDevice() {
+        LibUsb.releaseInterface(dHandle, 0);
         LibUsb.close(dHandle);
+        LibUsb.unrefDevice(device);
+        deviceStatus.notifyChanged(DeviceStatus.Disconnected);
+    }
+    
+    public static void main(String args[]) {
+        UsbConnDaemon ucd = new UsbConnDaemon(0x0483, 0x5750);
+        IObservable<DeviceStatus> dStatus = ucd.deviceStatus;
+        while (true) {
+            while (dStatus.getValue() != DeviceStatus.Initialized) {
+                synchronized (ucd) {
+                    try {
+                        ucd.wait(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            ucd.notifyChanged(new byte[] {0x55, 0x66, 0x77, 0x22, 0x15});
+            System.out.println("Message was successfully sent");
+            while (dStatus.getValue() != DeviceStatus.Disconnected) {
+                synchronized (ucd) {
+                    try {
+                        ucd.wait(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    ucd.notifyChanged(new byte[] {0x55, 0x66, 0x77, 0x22, 0x15});
+                }
+            }
+        }
     }
 }
